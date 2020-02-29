@@ -1,0 +1,6 @@
+coverage
+flake8
+import_all
+gitz
+pytest
+pytest-benchmark

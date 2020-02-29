@@ -1,0 +1,11 @@
+# Configuration file for coverage.py
+
+[run]
+
+branch = True
+source =  run_subprocess/
+
+[report]
+
+fail_under = 50
+skip_covered = True
