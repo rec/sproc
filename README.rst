@@ -1,21 +1,19 @@
-run_subprocess:
+subprocessor:
 --------------------
 
 ⛏️subprocesses for subhumanses  ⛏️
 =========================================
 
-Run a command in a subprocess, read stdin and stderr, and send their data to
-callbacks.
-
-Returns the shell integer error code from the subprocess, where 0 means
-no error.
+Run a command in a subprocess and yield lines from stdout and stderr
 
 Examples:
 
 .. code-block:: python
 
-   run_subprocess.run('ls')  # Runs the ls command and prints it on the terminal
+   from subprocessor import Call
 
+   for is_error, line in Call('ls foo bar NO_EXIST'):
+       print(is_error, line)
 
 
 
