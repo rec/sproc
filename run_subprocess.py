@@ -1,4 +1,3 @@
-import functools
 import itertools
 import shlex
 import subprocess
@@ -24,22 +23,31 @@ def run(cmd, out=print, err=None, sleep=0, count=None, **kwds):
         A list or tuple of strings, or a string that is split using shlex
 
     out:
-        The callback for stdout from the subprocess
+        `out` is called for each line in the subprocess's stdout
 
     err:
-        The callback for stderr from the subprocess
+        `err` is called for each line in the subprocess's stderr
 
     sleep:
-        How long to sleep between checking the process
+        How long to sleep between checking the processes, in seconds
 
     count:
-        Maximum number lines to retrieve at a time, from stdout or stderr
+        Maximum number of lines to retrieve at a time from the streams stdout
+        and stderr. If count is empty, retrieve lines until the stream blocks.
 
     kwds:
         Keywords that are passed to subprocess.Popen
     """
     err = err or out
     kwds = dict(_SUBPROCESS_KWDS, **kwds)
+
+    def read(stream, callback):
+        for i in range(count) if count else itertools.count():
+            line = stream.readline()
+            if not line:
+                return i
+            callback(line.decode('utf-8').rstrip('\n'))
+        return i + 1
 
     if kwds.get('shell'):
         if not isinstance(cmd, str):
@@ -49,42 +57,8 @@ def run(cmd, out=print, err=None, sleep=0, count=None, **kwds):
         cmd = shlex.split(cmd)
 
     with subprocess.Popen(cmd, **kwds) as p:
-        read = functools.partial(read_lines, count=count)
-
         while read(p.stdout, out) or read(p.stderr, err) or p.poll() is None:
             if sleep:
                 time.sleep(sleep)
 
     return p.returncode
-
-
-def run_to_list(cmd, **kwds):
-    """
-    Redirect the stdout of a subprocess to a list, and return that list.
-
-    If the parameter `err` is not set, then error messages will also be
-    added to the list.
-
-    """
-    out = []
-    return run(cmd, out=out.append, **kwds), out
-
-
-def read_lines(stream, callback, count=None):
-    """
-    Reads lines of text from a stream and sends them to a callback, until the
-    stream blocks.
-
-    Returns the number of lines read.
-
-    If `count` is not None, at most `count` lines are read.
-
-    """
-    for i in itertools.count() if count is None else range(count):
-        line = stream.readline()
-        if line:
-            callback(line.decode('utf-8').rstrip('\n'))
-        else:
-            return i
-
-    return i + 1
