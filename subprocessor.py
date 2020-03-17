@@ -12,7 +12,7 @@ _SUBPROCESS_KWDS = {
 }
 
 
-class Runner:
+class Call:
     def __init__(self, cmd, sleep=0, count=None, **kwds):
         """
         Run a command in a subprocess, and yield is_error, line pairs.
@@ -57,7 +57,8 @@ class Runner:
         with subprocess.Popen(self.cmd, **self.kwds) as p:
             while True:
                 got_data = False
-                for is_error, stream in enumerate((p.stdout, p.stderr)):
+                for is_error in False, True:
+                    stream = (p.stdout, p.stderr)[is_error]
                     for i in self.counter:
                         line = stream.readline()
                         if not line:
@@ -86,8 +87,7 @@ class Runner:
         err:
             ``err`` is called for each line in the subprocess's stderr
         """
-        err = err or out
         for is_error, line in self:
-            (err if is_error else out)(line)
+            (err if err and is_error else out)(line)
 
         return self.returncode

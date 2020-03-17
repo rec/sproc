@@ -9,7 +9,7 @@ class RunTest(unittest.TestCase):
         self.lines = []
 
     def sub(self, cmd):
-        return subprocessor.Runner(cmd).communicate(self.lines.append)
+        return subprocessor.Call(cmd).communicate(self.lines.append)
 
     def test_simple(self):
         error = self.sub('ls')
