@@ -23,7 +23,7 @@ if __name__ == '__main__':
         tests_require=['pytest'],
         py_modules=['run_subprocess'],
         description='Run a subprocess with callbacks',
-        long_description=open('README.md').read(),
+        long_description=open('README.rst').read(),
         license='MIT',
         classifiers=_classifiers,
         keywords=['backups'],
