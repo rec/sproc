@@ -12,53 +12,82 @@ _SUBPROCESS_KWDS = {
 }
 
 
-def run(cmd, out=print, err=None, sleep=0, count=None, **kwds):
-    """
-    Run a subprocess, read its stdin and stderr, and send them to error and
-    output callbacks.
+class Runner:
+    def __init__(self, cmd, sleep=0, count=None, **kwds):
+        """
+        Run a command in a subprocess, and yield is_error, line pairs.
 
-    Returns the integer error code that the subprocess returned.
+        cmd:
+            A list or tuple of strings, or a string.
 
-    cmd:
-        A list or tuple of strings, or a string that is split using shlex
+            If shell=True, Popen expects a string, so if ``cmd`` is a list, it
+            is joined using shlex.
 
-    out:
-        `out` is called for each line in the subprocess's stdout
+            If shell=False, Popen expects a list of strings, so if ``cmd`` is a
+            string, it is split using shlex
 
-    err:
-        `err` is called for each line in the subprocess's stderr
+        sleep:
+            How long to sleep between checking the processes, in seconds
 
-    sleep:
-        How long to sleep between checking the processes, in seconds
+        count:
+            Maximum number of lines to retrieve at a time from the streams
+            stdout and stderr. If count is empty, retrieve lines until the
+            stream blocks.
 
-    count:
-        Maximum number of lines to retrieve at a time from the streams stdout
-        and stderr. If count is empty, retrieve lines until the stream blocks.
+        kwds:
+            Keywords that are passed to subprocess.Popen
+        """
+        self.kwds = dict(_SUBPROCESS_KWDS, **kwds)
+        if self.kwds.get('shell'):
+            if isinstance(cmd, str):
+                self.cmd = cmd
+            else:
+                self.cmd = shlex.join(cmd)
+        elif isinstance(cmd, str):
+            self.cmd = shlex.split(cmd)
+        else:
+            self.cmd = cmd
+        self.sleep = sleep
+        self.counter = range(count) if count else itertools.count()
+        self.returncode = None
 
-    kwds:
-        Keywords that are passed to subprocess.Popen
-    """
-    err = err or out
-    kwds = dict(_SUBPROCESS_KWDS, **kwds)
+    def __iter__(self):
+        """Yield a series of ``error, line`` pairs from the subprocess cmd"""
 
-    def read(stream, callback):
-        for i in range(count) if count else itertools.count():
-            line = stream.readline()
-            if not line:
-                return i
-            callback(line.decode('utf-8').rstrip('\n'))
-        return i + 1
+        with subprocess.Popen(self.cmd, **self.kwds) as p:
+            while True:
+                got_data = False
+                for is_error, stream in enumerate((p.stdout, p.stderr)):
+                    for i in self.counter:
+                        line = stream.readline()
+                        if not line:
+                            break
+                        got_data = True
+                        yield is_error, line.decode('utf-8').rstrip('\n')
 
-    if kwds.get('shell'):
-        if not isinstance(cmd, str):
-            cmd = ' '.join(cmd)
+                if not (p.poll() is None or got_data):
+                    self.returncode = p.returncode
+                    break
 
-    elif isinstance(cmd, str):
-        cmd = shlex.split(cmd)
+                if self.sleep:
+                    time.sleep(self.sleep)
 
-    with subprocess.Popen(cmd, **kwds) as p:
-        while read(p.stdout, out) or read(p.stderr, err) or p.poll() is None:
-            if sleep:
-                time.sleep(sleep)
+    def communicate(self, out=print, err=None):
+        """
+        Run the subprocess, read lines from stdin and stderr, and send them to
+        callbacks.
 
-    return p.returncode
+        Returns the shell integer error code from the subprocess, where 0 means
+        no error.
+
+        out:
+            ``out`` is called for each line in the subprocess's stdout
+
+        err:
+            ``err`` is called for each line in the subprocess's stderr
+        """
+        err = err or out
+        for is_error, line in self:
+            (err if is_error else out)(line)
+
+        return self.returncode
