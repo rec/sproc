@@ -1,4 +1,4 @@
-import run_subprocess
+import subprocessor
 import os
 import unittest
 
@@ -9,12 +9,12 @@ class RunTest(unittest.TestCase):
         self.lines = []
 
     def sub(self, cmd):
-        return run_subprocess.Runner(cmd).communicate(self.lines.append)
+        return subprocessor.Runner(cmd).communicate(self.lines.append)
 
     def test_simple(self):
         error = self.sub('ls')
         assert error == 0
-        assert 'run_subprocess.py' in self.lines
+        assert 'subprocessor.py' in self.lines
         assert len(self.lines) >= 10
 
     def test_error(self):
