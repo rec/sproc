@@ -16,28 +16,25 @@ Examples:
        print(is_error, line)
 
 
+`Call(cmd, sleep=0, count=None, **kwds)`
+    An iterator for (is_error, line) pairs from a subprocess.
 
 cmd:
-    A list or tuple of strings, or a string.
+    A list or tuple of strings, or a string, to run in a subprocess.
 
-    If shell=True, Popen expects a string, so if ``cmd`` is a list, it is
-    joined with spaces.
+    If shell=True, Popen expects a string, so if ``cmd`` is a list, it
+    is joined using shlex.
 
     If shell=False, Popen expects a list of strings, so if ``cmd`` is a
     string, it is split using shlex
 
-out:
-    ``out`` is called for each line in the subprocess's stdout
-
-err:
-    ``err`` is called for each line in the subprocess's stderr
-
 sleep:
-    How long to sleep between checking the processes, in seconds
+    How long to sleep between checking the process, in seconds
 
 count:
-    Maximum number of lines to retrieve at a time from the streams stdout
-    and stderr. If count is empty, retrieve lines until the stream blocks.
+    Maximum number of lines to retrieve at a time from the streams
+    stdout and stderr. If count is empty, retrieve lines until the
+    stream blocks.
 
 kwds:
     Keywords that are passed to subprocess.Popen
