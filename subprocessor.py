@@ -18,7 +18,7 @@ class Call:
         Run a command in a subprocess, and yield is_error, line pairs.
 
         cmd:
-            A list or tuple of strings, or a string.
+            A list or tuple of strings, or a string, to run in a subprocess.
 
             If shell=True, Popen expects a string, so if ``cmd`` is a list, it
             is joined using shlex.
@@ -57,7 +57,7 @@ class Call:
         with subprocess.Popen(self.cmd, **self.kwds) as p:
             while True:
                 got_data = False
-                for is_error in False, True:
+                for is_error in True, False:
                     stream = (p.stdout, p.stderr)[is_error]
                     for i in self.counter:
                         line = stream.readline()
