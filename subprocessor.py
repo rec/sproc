@@ -3,7 +3,7 @@ import shlex
 import subprocess
 import time
 
-__version__ = '0.9.0'
+__version__ = '0.9.1'
 
 _SUBPROCESS_KWDS = {
     'shell': False,
