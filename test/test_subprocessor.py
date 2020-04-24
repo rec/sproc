@@ -1,6 +1,11 @@
-import subprocessor
+import import_all
 import os
+import subprocessor
 import unittest
+
+
+class ImportAllTest(import_all.ImportAllTest):
+    WARNINGS_ACTION = 'error'
 
 
 class RunTest(unittest.TestCase):
