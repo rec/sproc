@@ -9,15 +9,13 @@ EXAMPLES
 .. code-block:: python
     import subprocessor as sp
 
-    sub = sp.Sub('ls "My File.txt" foo.txt')
-    for is_err, line in sub:
-        if is_err:
-             print(
-        else:
-             # Handle stdout here
+    cmd = 'my-unix-command "My File.txt" foo.txt'
 
-    if sub.returncode:
-        sys.exit(sub.returncode)
+    for ok, line in sp.Sub(cmd):
+        if ok:
+             print('Found', line)
+        else:
+             print('ERROR', line)
 """
 
 import shlex
@@ -60,7 +58,7 @@ class Sub:
                 self.cmd = shlex.join(cmd)
 
         self.proc = None
-        self.stderr_first = True
+        self.stdout_first = False
 
     @property
     def returncode(self):
@@ -68,12 +66,12 @@ class Sub:
 
     def __iter__(self):
         """
-        Iterate over ``is_err, line`` pairs from stdout and stderr of
+        Iterate over ``ok, line`` pairs from stdout and stderr of
         the subprocess.
 
         Iterating starts the subprocess, and reads lines from both stdout and
-        stderr, yielding a series of ``is_err, line`` pairs, where ``is_err``
-        is true if ``line`` came from stderr.
+        stderr, yielding a series of ``ok, line`` pairs, where ``ok``
+        is true if ``line`` came from stdout.
 
         After the iterator is done, ``.returncode`` contains the shell integer
         error code from the subprocess, where 0 means no error.
@@ -85,8 +83,8 @@ class Sub:
                 data_received = False
 
                 for first in True, False:
-                    is_err = first == self.stderr_first
-                    stream = self.proc.stderr if is_err else self.proc.stdout
+                    is_out = first == self.stdout_first
+                    stream = self.proc.stdout if is_out else self.proc.stderr
 
                     while True:
                         line = stream.readline()
@@ -94,14 +92,13 @@ class Sub:
                             break
 
                         data_received = True
-                        yield is_err, line.decode('utf-8')
+                        yield is_out, line.decode('utf-8')
 
                 data_received = self.proc.poll() is None or data_received
 
     def call(self, out=None, err=None):
         """
-        Run a subprocess, read lines from its stdin and stderr, and send them
-        to callbacks.
+        Read lines from stdin and stderr and send them to callbacks
 
         Returns the shell integer error code from the subprocess, where 0 means
         no error.
@@ -115,18 +112,17 @@ class Sub:
               ``err`` is called for each line from the subprocess's stderr,
               if not None.
         """
-        for is_err, line in self:
-            if is_err:
-                err and err(line)
-            else:
+        for ok, line in self:
+            if ok:
                 out and out(line)
+            else:
+                err and err(line)
         return self.returncode
 
     def run(self):
         """
-        Starts a subprocess ``p``, reads lines from stdout and stderr into two
-        arrays ``out`` and ``err``, then returns a triple:
-            ``out, err, p.returncode``
+        Reads lines from stdout and stderr into two arrays ``out`` and ``err``,
+        then returns a triple ``out, err, returncode``.
         """
         out, err = [], []
         error_code = self.call(out.append, err.append)
@@ -134,8 +130,7 @@ class Sub:
 
     def log(self, out='  ', err='* ', print=print):
         """
-        Runs a command as a  subprocess, reads lines from stdin and stderr, and
-        prints them.
+        Read lines from stdin and stderr and prints them with prefixes
 
         Returns the shell integer error code from the subprocess, where 0 means
         no error.
