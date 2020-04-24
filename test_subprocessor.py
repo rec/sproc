@@ -1,16 +1,9 @@
-import import_all
-import os
 import subprocessor
 import unittest
 
 
-class ImportAllTest(import_all.ImportAllTest):
-    WARNINGS_ACTION = 'error'
-
-
 class RunTest(unittest.TestCase):
     def setUp(self):
-        os.chdir(os.path.dirname(os.path.dirname(__file__)))
         self.lines = []
 
     def sub(self, cmd):
