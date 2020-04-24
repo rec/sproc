@@ -10,6 +10,7 @@ Examples:
 
 .. code-block:: python
 
+
    from subprocessor import Call
 
    for is_error, line in Call('ls foo bar NO_EXIST'):
