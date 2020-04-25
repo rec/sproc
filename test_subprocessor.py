@@ -1,4 +1,4 @@
-from subprocessor import Sub
+import subprocessor as sp
 import unittest
 
 
@@ -7,7 +7,7 @@ class RunTest(unittest.TestCase):
         self.lines = []
 
     def sub(self, cmd, **kwds):
-        return Sub(cmd, **kwds).call(self.lines.append, self.lines.append)
+        return sp.call(cmd, self.lines.append, self.lines.append, **kwds)
 
     def test_simple(self):
         for shell in False, True:
@@ -28,9 +28,9 @@ class RunTest(unittest.TestCase):
     def test_log(self):
         for shell in False, True:
             self.lines.clear()
+            cmd = 'ls foo setup.py bar'
+            error = sp.log(cmd, shell=shell, print=self.lines.append)
 
-            sub = Sub('ls foo setup.py bar', shell=shell)
-            error = sub.log(print=self.lines.append)
             assert error
             assert '  setup.py\n' in self.lines
             for f in 'foo', 'bar':
@@ -39,8 +39,8 @@ class RunTest(unittest.TestCase):
 
     def test_run(self):
         for shell in False, True:
-            sub = Sub('ls foo setup.py bar', shell=shell)
-            out, err, error_code = sub.run()
+            cmd = 'ls foo setup.py bar'
+            out, err, error_code = sp.run(cmd, shell=shell)
             assert len(err) == 2
             assert error_code
             assert 'setup.py\n' in out

@@ -28,17 +28,29 @@ __all__ = ('Sub',)
 class Sub:
     def __init__(self, cmd, shell=False, **kwargs):
         """
-        Construct a subprocessor
+        An iterator over ``ok, line`` pairs from stdout and stderr of
+        the subprocess.
+
+        Iterating starts the subprocess, and reads lines from both stdout and
+        stderr, yielding a sequence of ``ok, line`` pairs, where ``ok``
+        is true if ``line`` came from stdout and false if it came from stderr.
+
+        After the iterator is done, the ``.returncode`` property contains
+        the error code from the subprocess, an integer where 0 means no error.
 
         ARGUMENTS
             cmd:
                 A list or tuple of strings or a string to run in a subprocess.
 
-                If shell=True, Popen expects a string, so if ``cmd`` is a list,
-                it is joined using shlex.
+            shell:
+                If shell is true, the specified command will be executed
+                through the shell (passed to subprocess.Popen()).
 
-                If shell=False, Popen expects a list of strings, so if ``cmd``
-                is a string, it is split using shlex.
+                If shell is true, Popen expects a string,
+                and so if ``cmd`` is a list, it is joined using shlex.
+
+                If shell is false, Popen expects a list of strings,
+                and so if ``cmd`` is a string, it is split using shlex.
 
             kwargs:
                 Keyword arguments passed to subprocess.Popen()
@@ -65,17 +77,6 @@ class Sub:
         return self.proc and self.proc.returncode
 
     def __iter__(self):
-        """
-        Iterate over ``ok, line`` pairs from stdout and stderr of
-        the subprocess.
-
-        Iterating starts the subprocess, and reads lines from both stdout and
-        stderr, yielding a series of ``ok, line`` pairs, where ``ok``
-        is true if ``line`` came from stdout.
-
-        After the iterator is done, ``.returncode`` contains the shell integer
-        error code from the subprocess, where 0 means no error.
-        """
         with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
             data_received = True
 
@@ -113,10 +114,9 @@ class Sub:
               if not None.
         """
         for ok, line in self:
-            if ok:
-                out and out(line)
-            else:
-                err and err(line)
+            ok and out and out(line)
+            not ok and err and err(line)
+
         return self.returncode
 
     def run(self):
@@ -148,3 +148,15 @@ class Sub:
         return self.call(
             out=lambda x: print(out + x), err=lambda x: print(err + x)
         )
+
+
+def call(cmd, out=None, err=None, **kwds):
+    return Sub(cmd, **kwds).call(out, err)
+
+
+def run(cmd, out=None, err=None, **kwds):
+    return Sub(cmd, **kwds).run()
+
+
+def log(cmd, out='  ', err='* ', print=print, **kwds):
+    return Sub(cmd, **kwds).log(out, err, print)
