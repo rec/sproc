@@ -7,7 +7,7 @@ class RunTest(unittest.TestCase):
         self.lines = []
 
     def sub(self, cmd, **kwds):
-        return sp.call(cmd, self.lines.append, self.lines.append, **kwds)
+        return sp.callback(cmd, self.lines.append, self.lines.append, **kwds)
 
     def test_simple(self):
         for shell in False, True:
