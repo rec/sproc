@@ -32,10 +32,11 @@ class RunTest(unittest.TestCase):
             error = sp.log(cmd, shell=shell, print=self.lines.append)
 
             assert error
+            assert len(self.lines) == 3
             assert '  setup.py\n' in self.lines
             for f in 'foo', 'bar':
                 assert sum(f in i for i in self.lines) == 1
-            assert sum(i.startswith('*') for i in self.lines) == 2
+            assert sum(i.startswith('! ') for i in self.lines) == 2
 
     def test_run(self):
         for shell in False, True:
