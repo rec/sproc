@@ -1,4 +1,5 @@
 import doc_subprocessor
+from readme_renderer.rst import render
 import subprocessor as sub
 import unittest
 
@@ -63,6 +64,10 @@ class RunTest(unittest.TestCase):
         actual = doc_subprocessor.make_doc()
         with open('README.rst') as fp:
             assert actual == fp.read()
+
+    def test_readme_format(self):
+        with open('README.rst') as fp:
+            assert render(fp.read())
 
 
 _NO_SUCH = 'No such file or directory\n'
