@@ -12,15 +12,16 @@ EXAMPLES
 
     import sproc
 
-    CMD = 'my-unix-command "My Cool File.txt" No-file.txt'
+    CMD = 'my-unix-command "My File.txt" file.txt'
 
-    for ok, line in sproc.Sub(CMD) as sp:
+    sub = sproc.Sub(CMD)
+    for ok, line in sub:
         if ok:
              print(' ', line)
         else:
              print('!', line)
 
-    if sp.returncode:
+    if sub.returncode:
         print('Error code', sp.returncode)
 
     # Return two lists of text lines and a returncode

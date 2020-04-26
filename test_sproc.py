@@ -13,6 +13,22 @@ class RunTest(unittest.TestCase):
 
     def test_simple(self):
         for shell in False, True:
+            sub = sproc('ls', shell=shell)
+            assert sub.returncode is None
+
+            errors = lines = sprocs = 0
+            for ok, line in sub:
+                lines += 1
+                errors += not ok
+                sprocs += line == 'sproc.py\n'
+
+            assert errors == 0
+            assert lines > 10
+            assert sprocs == 1
+            assert sub.returncode == 0
+
+    def test_call(self):
+        for shell in False, True:
             self.lines.clear()
             error = self.sub('ls', shell=shell)
 
