@@ -1,5 +1,5 @@
 ##################################################
-⛏️subprocessor: subprocesseses for subhumanses  ⛏
+⛏️sproc: subprocesseses for subhumanses  ⛏
 ##################################################
 
 Run a command in a subprocess and yield lines of text from stdout and stderr
@@ -10,11 +10,11 @@ EXAMPLES
 
 .. code-block:: python
 
-    import subprocessor as sub
+    import sproc
 
     CMD = 'my-unix-command "My Cool File.txt" No-file.txt'
 
-    for ok, line in sub.Sub(CMD) as sp:
+    for ok, line in sproc.Sub(CMD) as sp:
         if ok:
              print(' ', line)
         else:
@@ -24,20 +24,20 @@ EXAMPLES
         print('Error code', sp.returncode)
 
     # Return two lists of text lines and a returncode
-    out_lines, err_lines, returncode = sub.run(CMD)
+    out_lines, err_lines, returncode = sproc.run(CMD)
 
     # Call callback functions with lines of text read from stdout and stderr
-    returncode = sub.call(CMD, save_results, print_errors)
+    returncode = sproc.call(CMD, save_results, print_errors)
 
     # Log stdout and stderr, with prefixes
-    returncode = sub.log(CMD)
+    returncode = sproc.log(CMD)
 
 ***
 API
 ***
 
-Methods on ``class subprocessor.Sub:``
-======================================
+Methods on ``class sproc.Sub:``
+===============================
 
 ``Sub.__init__(self, cmd, **kwds)``
 -----------------------------------
@@ -109,8 +109,8 @@ Methods on ``class subprocessor.Sub:``
 Functions
 =========
 
-``subprocessor.call(cmd, out=None, err=None, **kwds)``
-------------------------------------------------------
+``sproc.call(cmd, out=None, err=None, **kwds)``
+-----------------------------------------------
 
     Run the subprocess and call function ``out`` with lines from
     ``stdout`` and function ``err`` with lines from ``stderr``.
@@ -132,8 +132,8 @@ Functions
         Keyword arguments passed to subprocess.Popen()
 
 
-``subprocessor.run(cmd, **kwds)``
----------------------------------
+``sproc.run(cmd, **kwds)``
+--------------------------
 
     Reads lines from ``stdout`` and ``stderr`` into two lists ``out`` and ``err``,
     then returns a tuple ``(out, err, returncode)``
@@ -146,8 +146,8 @@ Functions
         Keyword arguments passed to subprocess.Popen()
 
 
-``subprocessor.log(cmd, out='  ', err='! ', print=<built-in function print>, **kwds)``
---------------------------------------------------------------------------------------
+``sproc.log(cmd, out='  ', err='! ', print=<built-in function print>, **kwds)``
+-------------------------------------------------------------------------------
 
     Read lines from ``stdin`` and ``stderr`` and prints them with prefixes
 

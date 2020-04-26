@@ -1,6 +1,6 @@
-import doc_subprocessor
+import doc_sproc
 from readme_renderer.rst import render
-import subprocessor as sub
+import sproc
 import unittest
 
 
@@ -9,7 +9,7 @@ class RunTest(unittest.TestCase):
         self.lines = []
 
     def sub(self, cmd, **kwds):
-        return sub.call(cmd, self.lines.append, self.lines.append, **kwds)
+        return sproc.call(cmd, self.lines.append, self.lines.append, **kwds)
 
     def test_simple(self):
         for shell in False, True:
@@ -17,7 +17,7 @@ class RunTest(unittest.TestCase):
             error = self.sub('ls', shell=shell)
 
             assert error == 0
-            assert 'subprocessor.py\n' in self.lines
+            assert 'sproc.py\n' in self.lines
             assert len(self.lines) >= 10
 
     def test_error(self):
@@ -35,7 +35,7 @@ class RunTest(unittest.TestCase):
         for shell in False, True:
             self.lines.clear()
             cmd = 'ls foo setup.py bar'
-            error = sub.log(cmd, shell=shell, print=self.lines.append)
+            error = sproc.log(cmd, shell=shell, print=self.lines.append)
 
             assert error
             assert len(self.lines) == 3
@@ -49,7 +49,7 @@ class RunTest(unittest.TestCase):
     def test_run(self):
         for shell in False, True:
             cmd = 'ls foo setup.py bar'
-            out, err, error_code = sub.run(cmd, shell=shell)
+            out, err, error_code = sproc.run(cmd, shell=shell)
 
             assert len(err) == 2
             assert error_code
@@ -61,7 +61,7 @@ class RunTest(unittest.TestCase):
             assert all(i.endswith(_NO_SUCH) for i in err)
 
     def test_make_doc(self):
-        actual = doc_subprocessor.make_doc()
+        actual = doc_sproc.make_doc()
         with open('README.rst') as fp:
             assert actual == fp.read()
 

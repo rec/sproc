@@ -1,9 +1,9 @@
-from subprocessor import Sub
+from sproc import Sub
 import inspect
-import subprocessor as sub
+import sproc
 
 README_FILE = 'README.rst'
-_, *ALL = sub.__all__
+_, *ALL = sproc.__all__
 
 assert _ == 'Sub'
 
@@ -29,8 +29,8 @@ def make_doc():
         return c + s.replace(c, '\\' + c) + c
 
     def sub_class():
-        yield from (sub.__doc__, '***', 'API', '***', '')
-        yield header('Methods on `class subprocessor.Sub:`', '=')
+        yield from (sproc.__doc__, '***', 'API', '***', '')
+        yield header('Methods on `class sproc.Sub:`', '=')
         yield ''
         yield header('`Sub.__init__(self, cmd, **kwds)`')
         yield from indent(Sub.__doc__)
@@ -46,9 +46,9 @@ def make_doc():
         yield header('Functions', '=')
 
         for name in ALL:
-            function = getattr(sub, name)
+            function = getattr(sproc, name)
             yield ''
-            yield header(sig('subprocessor.' + name, function))
+            yield header(sig('sproc.' + name, function))
             yield from indent(function.__doc__)
 
     return '\n'.join(apis()).strip().replace('`', '``')

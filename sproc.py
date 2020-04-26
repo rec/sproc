@@ -1,6 +1,6 @@
 """
 ##################################################
-⛏️subprocessor: subprocesseses for subhumanses  ⛏
+⛏️sproc: subprocesseses for subhumanses  ⛏
 ##################################################
 
 Run a command in a subprocess and yield lines of text from stdout and stderr
@@ -11,11 +11,11 @@ EXAMPLES
 
 .. code-block:: python
 
-    import subprocessor as sub
+    import sproc
 
     CMD = 'my-unix-command "My Cool File.txt" No-file.txt'
 
-    for ok, line in sub.Sub(CMD) as sp:
+    for ok, line in sproc.Sub(CMD) as sp:
         if ok:
              print(' ', line)
         else:
@@ -25,20 +25,20 @@ EXAMPLES
         print('Error code', sp.returncode)
 
     # Return two lists of text lines and a returncode
-    out_lines, err_lines, returncode = sub.run(CMD)
+    out_lines, err_lines, returncode = sproc.run(CMD)
 
     # Call callback functions with lines of text read from stdout and stderr
-    returncode = sub.call(CMD, save_results, print_errors)
+    returncode = sproc.call(CMD, save_results, print_errors)
 
     # Log stdout and stderr, with prefixes
-    returncode = sub.log(CMD)
+    returncode = sproc.log(CMD)
 """
 
 from queue import Queue
 from threading import Thread
-import subprocess
 import functools
 import shlex
+import subprocess
 
 __version__ = '1.0.0'
 __all__ = ('Sub', 'call', 'run', 'log')

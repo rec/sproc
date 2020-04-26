@@ -1,5 +1,5 @@
-import subprocessor
 from setuptools import setup
+import sproc
 
 _classifiers = [
     'Development Status :: 4 - Beta',
@@ -15,13 +15,13 @@ _classifiers = [
 
 if __name__ == '__main__':
     setup(
-        name='subprocessor',
-        version=subprocessor.__version__,
+        name='sproc',
+        version=sproc.__version__,
         author='Tom Ritchford',
         author_email='tom@swirly.com',
-        url='https://github.com/rec/subprocessor',
+        url='https://github.com/rec/sproc',
         tests_require=['pytest'],
-        py_modules=['subprocessor'],
+        py_modules=['sproc'],
         description='Run a subprocess with callbacks',
         long_description=open('README.rst').read(),
         license='MIT',
