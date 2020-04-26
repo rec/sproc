@@ -40,7 +40,7 @@ import subprocess
 import functools
 import shlex
 
-__version__ = '0.9.2'
+__version__ = '1.0.0'
 __all__ = ('Sub', 'call', 'run', 'log')
 
 
