@@ -1,31 +1,37 @@
 """
-⛏️subprocessor: subprocesses for subhumanses  ⛏
-===================================================
+##################################################
+⛏️subprocessor: subprocesseses for subhumanses  ⛏
+##################################################
 
-Run a command in a subprocess and yield lines from stdout and stderr.
+Run a command in a subprocess and yield lines of text from stdout and stderr
 
+*********
 EXAMPLES
+*********
 
 .. code-block:: python
 
-    import subprocessor as sp
+    import subprocessor as sub
 
-    CMD = 'my-unix-command "My File.txt" foo.txt'
+    CMD = 'my-unix-command "My Cool File.txt" No-file.txt'
 
-    for ok, line in sp.Sub(CMD):
+    for ok, line in sub.Sub(CMD) as sp:
         if ok:
-             print('Found', line)
+             print(' ', line)
         else:
-             print('ERROR', line)
+             print('!', line)
 
-    # Return arrays of lines and a returncode
-    stdout, stderr, returncode = sp.run(CMD)
+    if sp.returncode:
+        print('Error code', sp.returncode)
 
-    # Call callback functions with lines of text
-    returncode = sp.call(CMD, stdout_callback, stderr_callback)
+    # Return two lists of text lines and a returncode
+    out_lines, err_lines, returncode = sub.run(CMD)
 
-    # Log stdout and stderr as they come in, with prefixes
-    returncode = sp.log(CMD)
+    # Call callback functions with lines of text read from stdout and stderr
+    returncode = sub.call(CMD, save_results, print_errors)
+
+    # Log stdout and stderr, with prefixes
+    returncode = sub.log(CMD)
 """
 
 from queue import Queue
@@ -41,6 +47,12 @@ __all__ = ('Sub', 'call', 'run', 'log')
 class Sub:
     """
     Iterate over lines of text from a subprocess.
+
+    If `kwargs['shell']` is true, `Popen` expects a string,
+    and so if `cmd` is not a string, it is joined using `shlex`.
+
+    If `kwargs['shell']` is false, `Popen` expects a list of strings,
+    and so if `cmd` is a string, it is split using `shlex`.
     """
 
     @functools.wraps(subprocess.Popen)
@@ -74,19 +86,18 @@ class Sub:
         """
         queue = Queue()
 
-        with subprocess.Popen(self.cmd, **self.kwargs) as proc:
+        def read_stream(ok):
+            try:
+                stream = self.proc.stdout if ok else self.proc.stderr
+                line = '.'
+                while line or self.proc.poll() is None:
+                    line = stream.readline()
+                    if line:
+                        queue.put((ok, line))
+            finally:
+                queue.put((ok, None))
 
-            def read_stream(ok):
-                try:
-                    stream = proc.stdout if ok else proc.stderr
-                    line = '.'
-                    while line or proc.poll() is None:
-                        line = stream.readline()
-                        if line:
-                            queue.put((ok, line))
-                finally:
-                    queue.put((ok, None))
-
+        with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
             for ok in False, True:
                 Thread(target=read_stream, args=(ok,), daemon=True).start()
 
@@ -98,12 +109,15 @@ class Sub:
                 else:
                     finished += 1
 
-        self.returncode = proc.returncode
+        self.returncode = self.proc.returncode
 
     def call(self, out=None, err=None):
         """
-        Run the subprocess and call optional function `out` with lines from
-        `stdout` and optional `err` with lines from `stderr`.
+        Run the subprocess and call function `out` with lines from
+        `stdout` and function `err` with lines from `stderr`.
+
+        Blocks until the subprocess is complete: the callbacks are on
+        the current thread.
         """
         for ok, line in self:
             out and out(line) if ok else err and err(line)
@@ -112,13 +126,11 @@ class Sub:
 
     def run(self):
         """
-        Reads lines from `stdout` and `stderr` into two arrays of lines
-        then returns a triple: `stdout, stderr, returncode'
+        Reads lines from `stdout` and `stderr` into two lists `out` and `err`,
+        then returns a tuple `(out, err, returncode)`
         """
         out, err = [], []
-        for ok, line in self:
-            (out if ok else err).append(line)
-
+        self.call(out.append, err.append)
         return out, err, self.returncode
 
     def log(self, out='  ', err='! ', print=print):
@@ -128,12 +140,7 @@ class Sub:
         Returns the shell integer error code from the subprocess, where 0 means
         no error.
         """
-        return self.call(
-            out=lambda x: print(out + x), err=lambda x: print(err + x)
-        )
-        return self.call(
-            out=lambda x: print(out + x), err=lambda x: print(err + x)
-        )
+        return self.call(lambda x: print(out + x), lambda x: print(err + x))
 
 
 def call(cmd, out=None, err=None, **kwds):
@@ -152,35 +159,27 @@ _ARG = """
 ARGUMENTS"""
 _CMD = """
   cmd:
-    A list or tuple of strings or a string to run in a subprocess.
-
-    If `kwargs['shell']` is true, `Popen` expects a string,
-    and so if `cmd` is not a string, it is joined using `shlex`.
-
-    If `kwargs['shell']` is false, `Popen` expects a list of strings,
-    and so if `cmd` is a string, it is split using `shlex`.
+    The command to run in a subprocess: a string or a list or tuple of strings
 """
-_KWARGS = """
+_KW = """
   kwargs:
     Keyword arguments passed to subprocess.Popen()
 """
 _CALL_OUT = """
   out:
-    `out` is called for each line from the subprocess's stdout,
-    if not None.
+    if not None, `out` is called for each line from the subprocess's stdout
 """
 _CALL_ERR = """
   err:
-    `err` is called for each line from the subprocess's stderr,
-    if not None.
+    if not None, `err` is called for each line from the subprocess's stderr,
 """
 _LOG_OUT = """
   out:
-    Prefix for each line to stdout
+    Prefix for printing lines from stdout
 """
 _LOG_ERR = """
   err:
-    Prefix for each line to stderr
+    Prefix for printing lines from stderr
 """
 _PRINT = """
   print:
@@ -189,14 +188,15 @@ _PRINT = """
 
 
 def _unindent(s, offset=8):
-    return '\n'.join(i[offset:] for i in s.__doc__.splitlines()) + _ARG
+    return '\n'.join(i[offset:] for i in s.__doc__.splitlines())
 
 
-Sub.__doc__ = _unindent(Sub, 4) + _CMD + _KWARGS
+Sub.__doc__ = _unindent(Sub, 4) + _ARG + _CMD + _KW
 
-call.__doc__ = _unindent(Sub.call) + _CMD + _CALL_OUT + _CALL_ERR + _KWARGS
-run.__doc__ = _unindent(Sub.run) + _CMD + _KWARGS
-log.__doc__ = _unindent(Sub.log) + _CMD + _LOG_OUT + _LOG_ERR + _KWARGS
+call.__doc__ = _unindent(Sub.call) + _ARG + _CMD + _CALL_OUT + _CALL_ERR + _KW
+run.__doc__ = _unindent(Sub.run) + _ARG + _CMD + _KW
+log.__doc__ = _unindent(Sub.log) + _ARG + _CMD + _LOG_OUT + _LOG_ERR + _KW
 
-Sub.call.__doc__ = _unindent(Sub.call) + _CALL_OUT + _CALL_ERR
-Sub.log.__doc__ = _unindent(Sub.log) + _LOG_OUT + _LOG_ERR
+Sub.call.__doc__ = _unindent(Sub.call) + _ARG + _CALL_OUT + _CALL_ERR
+Sub.run.__doc__ = _unindent(Sub.run)
+Sub.log.__doc__ = _unindent(Sub.log) + _ARG + _LOG_OUT + _LOG_ERR
