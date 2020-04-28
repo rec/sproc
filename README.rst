@@ -71,11 +71,11 @@ Methods on ``class sproc.Sub:``
 ``Sub.call(self, out=None, err=None)``
 --------------------------------------
 
-    Run the subprocess and call function ``out`` with lines from
+    Run the subprocess, and call function ``out`` with lines from
     ``stdout`` and function ``err`` with lines from ``stderr``.
 
-    Blocks until the subprocess is complete: the callbacks are on
-    the current thread.
+    Blocks until the subprocess is complete: the callbacks to ``out`` and
+    'err`` are on the current thread.
 
     ARGUMENTS
       out:
@@ -112,11 +112,11 @@ Functions
 ``sproc.call(cmd, out=None, err=None, **kwds)``
 -----------------------------------------------
 
-    Run the subprocess and call function ``out`` with lines from
+    Run the subprocess, and call function ``out`` with lines from
     ``stdout`` and function ``err`` with lines from ``stderr``.
 
-    Blocks until the subprocess is complete: the callbacks are on
-    the current thread.
+    Blocks until the subprocess is complete: the callbacks to ``out`` and
+    'err`` are on the current thread.
 
     ARGUMENTS
       cmd:
