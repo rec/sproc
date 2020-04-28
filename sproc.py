@@ -43,6 +43,8 @@ import subprocess
 __version__ = '2.0.1'
 __all__ = ('Sub', 'call', 'run', 'log')
 
+DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
+
 
 class Sub:
     """
@@ -60,10 +62,8 @@ class Sub:
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
 
-        PIPE = subprocess.PIPE
-
         self.cmd = cmd
-        self.kwargs = dict(kwargs, stderr=PIPE, stdout=PIPE)
+        self.kwargs = dict(kwargs, **DEFAULTS)
 
         shell = kwargs.get('shell')
         is_str = isinstance(cmd, str)
@@ -73,7 +73,9 @@ class Sub:
         if not is_str and shell:
             self.cmd = shlex.join(cmd)
 
-        self.returncode = None
+    @property
+    def returncode(self):
+        return self.proc and self.proc.returncode
 
     def __iter__(self):
         """
@@ -108,8 +110,6 @@ class Sub:
                     yield ok, line.decode('utf8')
                 else:
                     finished += 1
-
-        self.returncode = self.proc.returncode
 
     def call(self, out=None, err=None):
         """
