@@ -64,6 +64,7 @@ class Sub:
 
         self.cmd = cmd
         self.kwargs = dict(kwargs, **DEFAULTS)
+        self.threads = []
 
         shell = kwargs.get('shell')
         is_str = isinstance(cmd, str)
@@ -88,20 +89,9 @@ class Sub:
         """
         queue = Queue()
 
-        def read_stream(ok):
-            try:
-                stream = self.proc.stdout if ok else self.proc.stderr
-                line = '.'
-                while line or self.proc.poll() is None:
-                    line = stream.readline()
-                    if line:
-                        queue.put((ok, line))
-            finally:
-                queue.put((ok, None))
-
         with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
             for ok in False, True:
-                Thread(target=read_stream, args=(ok,), daemon=True).start()
+                self._start_thread(ok, lambda o, s: queue.put((o, s)))
 
             finished = 0
             while finished < 2:
@@ -141,6 +131,22 @@ class Sub:
         no error.
         """
         return self.call(lambda x: print(out + x), lambda x: print(err + x))
+
+    def _start_thread(self, ok, callback):
+        def read_stream():
+            try:
+                stream = self.proc.stdout if ok else self.proc.stderr
+                line = '.'
+                while line or self.proc.poll() is None:
+                    line = stream.readline()
+                    if line:
+                        callback(ok, line)
+            finally:
+                callback(ok, None)
+
+        th = Thread(target=read_stream, daemon=True)
+        th.start()
+        self.threads.append(th)
 
 
 def call(cmd, out=None, err=None, **kwds):
