@@ -41,7 +41,7 @@ import shlex
 import subprocess
 
 __version__ = '2.0.1'
-__all__ = ('Sub', 'call', 'run', 'log')
+__all__ = ('Sub', 'call', 'call_async', 'run', 'log')
 
 DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
 
@@ -64,7 +64,7 @@ class Sub:
 
         self.cmd = cmd
         self.kwargs = dict(kwargs, **DEFAULTS)
-        self.threads = []
+        self._threads = []
 
         shell = kwargs.get('shell')
         is_str = isinstance(cmd, str)
@@ -97,7 +97,7 @@ class Sub:
             while finished < 2:
                 ok, line = queue.get()
                 if line:
-                    yield ok, line.decode('utf8')
+                    yield ok, line
                 else:
                     finished += 1
 
@@ -109,10 +109,23 @@ class Sub:
         Blocks until the subprocess is complete: the callbacks to `out` and
         'err` are on the current thread.
         """
+        callback = self._callback(out, err)
         for ok, line in self:
-            out and out(line) if ok else err and err(line)
+            callback(ok, line)
 
         return self.returncode
+
+    def call_async(self, out=None, err=None):
+        """
+        Run the subprocess, and asynchronously call function `out` with lines
+        from `stdout`, and function `err` with lines from `stderr`.
+
+        Does not block - immediately returns.
+        """
+        with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
+            callback = self._callback(out, err)
+            for ok in False, True:
+                self._start_thread(ok, callback)
 
     def run(self):
         """
@@ -132,6 +145,15 @@ class Sub:
         """
         return self.call(lambda x: print(out + x), lambda x: print(err + x))
 
+    def join(self, timeout=None):
+        """Join the stream handling threads"""
+        for t in self._threads:
+            t.join(timeout)
+
+    def kill(self):
+        """Kill the running process, if any"""
+        self.proc and self.proc.kill()
+
     def _start_thread(self, ok, callback):
         def read_stream():
             try:
@@ -140,17 +162,31 @@ class Sub:
                 while line or self.proc.poll() is None:
                     line = stream.readline()
                     if line:
-                        callback(ok, line)
+                        callback(ok, line.decode('utf8'))
             finally:
                 callback(ok, None)
 
         th = Thread(target=read_stream, daemon=True)
         th.start()
-        self.threads.append(th)
+        self._threads.append(th)
+
+    def _callback(self, out, err):
+        if out and err:
+            return lambda ok, line: line and (out(line) if ok else err(line))
+        if out:
+            return lambda ok, line: line and ok and out(line)
+        if err:
+            return lambda ok, line: line and not ok and err(line)
+        else:
+            return lambda ok, line: None
 
 
 def call(cmd, out=None, err=None, **kwds):
     return Sub(cmd, **kwds).call(out, err)
+
+
+def call_async(cmd, out=None, err=None, **kwds):
+    return Sub(cmd, **kwds).call_async(out, err)
 
 
 def run(cmd, **kwds):
@@ -200,9 +236,17 @@ def _unindent(s, offset=8):
 Sub.__doc__ = _unindent(Sub, 4) + _ARG + _CMD + _KW
 
 call.__doc__ = _unindent(Sub.call) + _ARG + _CMD + _CALL_OUT + _CALL_ERR + _KW
-run.__doc__ = _unindent(Sub.run) + _ARG + _CMD + _KW
-log.__doc__ = _unindent(Sub.log) + _ARG + _CMD + _LOG_OUT + _LOG_ERR + _KW
-
 Sub.call.__doc__ = _unindent(Sub.call) + _ARG + _CALL_OUT + _CALL_ERR
+
+call_async.__doc__ = _unindent(Sub.call_async) + (
+    _ARG + _CMD + _CALL_OUT + _CALL_ERR + _KW
+)
+Sub.call_async.__doc__ = _unindent(Sub.call_async) + (
+    _ARG + _CALL_OUT + _CALL_ERR
+)
+
+run.__doc__ = _unindent(Sub.run) + _ARG + _CMD + _KW
 Sub.run.__doc__ = _unindent(Sub.run)
-Sub.log.__doc__ = _unindent(Sub.log) + _ARG + _LOG_OUT + _LOG_ERR
+
+log.__doc__ = _unindent(Sub.log) + _ARG + _CMD + _LOG_OUT + _LOG_ERR + _KW
+Sub.log.__doc__ = _unindent(Sub.log) + (_ARG + _LOG_OUT + _LOG_ERR)

@@ -69,5 +69,17 @@ class RunTest(unittest.TestCase):
         with open('README.rst') as fp:
             assert render(fp.read())
 
+    def test_async(self):
+        for shell in False, True:
+            lines, errors = [], []
+            sub = sproc.Sub('ls setup.py MISSING', shell=shell)
+            sub.call_async(lines.append, errors.append)
+            sub.join()
+            assert sub.returncode != 0
+
+            assert 'setup.py\n' in lines
+            assert len(lines) == 1
+            assert len(errors) == 1
+
 
 _NO_SUCH = 'No such file or directory\n'

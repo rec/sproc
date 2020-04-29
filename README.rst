@@ -84,6 +84,21 @@ Methods on ``class sproc.Sub:``
       err:
         if not None, ``err`` is called for each line from the subprocess's stderr,
 
+``Sub.call_async(self, out=None, err=None)``
+--------------------------------------------
+
+    Run the subprocess, and asynchronously call function ``out`` with lines
+    from ``stdout``, and function ``err`` with lines from ``stderr``.
+
+    Does not block - immediately returns.
+
+    ARGUMENTS
+      out:
+        if not None, ``out`` is called for each line from the subprocess's stdout
+
+      err:
+        if not None, ``err`` is called for each line from the subprocess's stderr,
+
 ``Sub.run(self)``
 -----------------
 
@@ -117,6 +132,28 @@ Functions
 
     Blocks until the subprocess is complete: the callbacks to ``out`` and
     'err`` are on the current thread.
+
+    ARGUMENTS
+      cmd:
+        The command to run in a subprocess: a string or a list or tuple of strings
+
+      out:
+        if not None, ``out`` is called for each line from the subprocess's stdout
+
+      err:
+        if not None, ``err`` is called for each line from the subprocess's stderr,
+
+      kwargs:
+        Keyword arguments passed to subprocess.Popen()
+
+
+``sproc.call_async(cmd, out=None, err=None, **kwds)``
+-----------------------------------------------------
+
+    Run the subprocess, and asynchronously call function ``out`` with lines
+    from ``stdout``, and function ``err`` with lines from ``stderr``.
+
+    Does not block - immediately returns.
 
     ARGUMENTS
       cmd:
