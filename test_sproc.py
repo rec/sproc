@@ -28,13 +28,13 @@ class RunTest(unittest.TestCase):
             assert error
             assert 'setup.py\n' in self.lines
 
-            for f in 'foo', 'bar':
+            for _ in 'foo', 'bar':
                 assert sum(i.endswith(_NO_SUCH) for i in self.lines) == 2
 
     def test_log(self):
+        cmd = 'ls foo setup.py bar'
         for shell in False, True:
             self.lines.clear()
-            cmd = 'ls foo setup.py bar'
             error = sproc.log(cmd, shell=shell, print=self.lines.append)
 
             assert error
@@ -47,8 +47,8 @@ class RunTest(unittest.TestCase):
             assert sum(i.startswith('! ') for i in self.lines) == 2
 
     def test_run(self):
+        cmd = 'ls foo setup.py bar'
         for shell in False, True:
-            cmd = 'ls foo setup.py bar'
             out, err, error_code = sproc.run(cmd, shell=shell)
 
             assert len(err) == 2
