@@ -40,7 +40,7 @@ import functools
 import shlex
 import subprocess
 
-__version__ = '2.0.1'
+__version__ = '2.0.2'
 __all__ = ('Sub', 'call', 'call_async', 'run', 'log')
 
 DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}

@@ -1,3 +1,13 @@
+## v2.0.2 - 20/09/06
+
+* Add MANIFEST.in
+* Sort import statements with simp
+* Refactored by Sourcery
+* New function sproc.call_async()
+* Extract Sub._start_thread() method
+* More documentation
+* Make Sub.returncode into a property
+
 ## v2.0.1 - 2020-04-28
 
 * Mark as release version
