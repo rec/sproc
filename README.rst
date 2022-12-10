@@ -50,6 +50,8 @@ Methods on ``class sproc.Sub:``
     If ``kwargs['shell']`` is false, ``Popen`` expects a list of strings,
     and so if ``cmd`` is a string, it is split using ``shlex``.
 
+    If separator is not None, use StreamReader.readuntil instead of readline
+
     ARGUMENTS
       cmd:
         The command to run in a subprocess: a string or a list or tuple of strings

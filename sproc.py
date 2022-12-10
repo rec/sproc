@@ -36,6 +36,7 @@ EXAMPLES
 
 from queue import Queue
 from threading import Thread
+import asyncio
 import functools
 import shlex
 import subprocess
@@ -55,14 +56,17 @@ class Sub:
 
     If `kwargs['shell']` is false, `Popen` expects a list of strings,
     and so if `cmd` is a string, it is split using `shlex`.
+
+    If separator is not None, use StreamReader.readuntil instead of readline
     """
 
     @functools.wraps(subprocess.Popen)
-    def __init__(self, cmd, **kwargs):
+    def __init__(self, cmd, *, separator=None, **kwargs):
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
 
         self.cmd = cmd
+        self.separator = separator
         self.kwargs = dict(kwargs, **DEFAULTS)
         self._threads = []
 
@@ -156,11 +160,17 @@ class Sub:
 
     def _start_thread(self, ok, callback):
         def read_stream():
+            stream = self.proc.stdout if ok else self.proc.stderr
+            line = '.'
             try:
-                stream = self.proc.stdout if ok else self.proc.stderr
-                line = '.'
                 while line or self.proc.poll() is None:
-                    line = stream.readline()
+                    if self.separator:
+                        try:
+                            line = stream.readuntil(self.separator)
+                        except asyncio.IncompleteReadError as e:
+                            line = e.partial
+                    else:
+                        line = stream.readline()
                     if line:
                         callback(ok, line.decode('utf8'))
             finally:
