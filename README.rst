@@ -42,13 +42,16 @@ Methods on ``class sproc.Sub:``
 ``Sub.__init__(self, cmd, **kwds)``
 -----------------------------------
 
-    Iterate over lines of text from a subprocess.
+    Iterate over lines or chunks of text from a subprocess.
 
     If ``kwargs['shell']`` is true, ``Popen`` expects a string,
     and so if ``cmd`` is not a string, it is joined using ``shlex``.
 
     If ``kwargs['shell']`` is false, ``Popen`` expects a list of strings,
     and so if ``cmd`` is a string, it is split using ``shlex``.
+
+    If ``by_lines`` is true, use readline() to get each new item;
+    if false, use read1().
 
     ARGUMENTS
       cmd:

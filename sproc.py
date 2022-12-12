@@ -48,21 +48,25 @@ DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
 
 class Sub:
     """
-    Iterate over lines of text from a subprocess.
+    Iterate over lines or chunks of text from a subprocess.
 
     If `kwargs['shell']` is true, `Popen` expects a string,
     and so if `cmd` is not a string, it is joined using `shlex`.
 
     If `kwargs['shell']` is false, `Popen` expects a list of strings,
     and so if `cmd` is a string, it is split using `shlex`.
+
+    If `by_lines` is true, use readline() to get each new item;
+    if false, use read1().
     """
 
     @functools.wraps(subprocess.Popen)
-    def __init__(self, cmd, **kwargs):
+    def __init__(self, cmd, *, by_lines=True, **kwargs):
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
 
         self.cmd = cmd
+        self.by_lines = by_lines
         self.kwargs = dict(kwargs, **DEFAULTS)
         self._threads = []
 
@@ -160,9 +164,15 @@ class Sub:
                 stream = self.proc.stdout if ok else self.proc.stderr
                 line = '.'
                 while line or self.proc.poll() is None:
-                    line = stream.readline()
+                    if self.by_lines:
+                        line = stream.readline()
+                    else:
+                        line = stream.read1()
+
                     if line:
-                        callback(ok, line.decode('utf8'))
+                        if not isinstance(line, str):
+                            line = line.decode('utf8')
+                        callback(ok, line)
             finally:
                 callback(ok, None)
 
