@@ -6,7 +6,7 @@ target-version = ['py37']
 [tool.poetry]
 name = "sproc"
 version = "2.1.0"
-description = "⛏️subprocesseses for subhumanses  ⛏"
+description = "⛏ Subprocesseses for subhumanses ⛏"
 authors = ["Tom Ritchford <tom@swirly.com>"]
 license = "MIT"
 readme = "README.rst"
