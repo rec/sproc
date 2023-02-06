@@ -1,0 +1,1150 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.9">
+    
+    
+      
+        <title>⛏: `sproc`: Subprocesseses for subhumanses ⛏</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.0d440cfe.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.2505c338.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="extra.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="amber" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sproc-subprocesseses-for-subhumanses" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="⛏: `sproc`: Subprocesseses for subhumanses ⛏" class="md-header__button md-logo" aria-label="⛏: `sproc`: Subprocesseses for subhumanses ⛏" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            ⛏: `sproc`: Subprocesseses for subhumanses ⛏
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ⛏: `sproc`: Subprocesseses for subhumanses ⛏
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="⛏: `sproc`: Subprocesseses for subhumanses ⛏" class="md-nav__button md-logo" aria-label="⛏: `sproc`: Subprocesseses for subhumanses ⛏" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    ⛏: `sproc`: Subprocesseses for subhumanses ⛏
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          ⛏: `sproc`: Subprocesseses for subhumanses ⛏
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        ⛏: `sproc`: Subprocesseses for subhumanses ⛏
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sproc" class="md-nav__link">
+    sproc
+  </a>
+  
+    <nav class="md-nav" aria-label="sproc">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sproc--_1" class="md-nav__link">
+    
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc--_2" class="md-nav__link">
+    
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sproc.Sub" class="md-nav__link">
+    Sub
+  </a>
+  
+    <nav class="md-nav" aria-label="Sub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.__iter__" class="md-nav__link">
+    __iter__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.call" class="md-nav__link">
+    call()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.call_async" class="md-nav__link">
+    call_async()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.join" class="md-nav__link">
+    join()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.kill" class="md-nav__link">
+    kill()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.log" class="md-nav__link">
+    log()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.run" class="md-nav__link">
+    run()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sproc" class="md-nav__link">
+    sproc
+  </a>
+  
+    <nav class="md-nav" aria-label="sproc">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sproc--_1" class="md-nav__link">
+    
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc--_2" class="md-nav__link">
+    
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sproc.Sub" class="md-nav__link">
+    Sub
+  </a>
+  
+    <nav class="md-nav" aria-label="Sub">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.__iter__" class="md-nav__link">
+    __iter__()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.call" class="md-nav__link">
+    call()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.call_async" class="md-nav__link">
+    call_async()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.join" class="md-nav__link">
+    join()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.kill" class="md-nav__link">
+    kill()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.log" class="md-nav__link">
+    log()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sproc.Sub.run" class="md-nav__link">
+    run()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sproc-subprocesseses-for-subhumanses">⛏: <code>sproc</code>: Subprocesseses for subhumanses ⛏</h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+<a id="sproc"></a>
+  <div class="doc doc-contents first">
+  
+      <h6 id="sproc--_1"></h6>
+<p>⛏️sproc: subprocesseses for subhumanses  ⛏</p>
+<h6 id="sproc--_2"></h6>
+<p>Run a command in a subprocess and yield lines of text from stdout and stderr</p>
+<hr />
+<p>EXAMPLES</p>
+<hr />
+<p>.. code-block:: python</p>
+<pre><code>import sproc
+
+CMD = 'my-unix-command "My Cool File.txt" No-file.txt'
+
+for ok, line in sproc.Sub(CMD) as sp:
+    if ok:
+         print(' ', line)
+    else:
+         print('!', line)
+
+if sp.returncode:
+    print('Error code', sp.returncode)
+
+# Return two lists of text lines and a returncode
+out_lines, err_lines, returncode = sproc.run(CMD)
+
+# Call callback functions with lines of text read from stdout and stderr
+returncode = sproc.call(CMD, save_results, print_errors)
+
+# Log stdout and stderr, with prefixes
+returncode = sproc.log(CMD)
+</code></pre>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="sproc.Sub" class="doc doc-heading">
+        <code>Sub</code>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Iterate over lines or chunks of text from a subprocess.</p>
+<p>If <code>kwargs['shell']</code> is true, <code>Popen</code> expects a string,
+and so if <code>cmd</code> is not a string, it is joined using <code>shlex</code>.</p>
+<p>If <code>kwargs['shell']</code> is false, <code>Popen</code> expects a list of strings,
+and so if <code>cmd</code> is a string, it is split using <code>shlex</code>.</p>
+<p>If <code>by_lines</code> is true, use readline() to get each new item;
+if false, use read1().</p>
+
+
+        <details class="quote">
+          <summary>Source code in <code>sproc/sproc.py</code></summary>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Sub</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iterate over lines or chunks of text from a subprocess.</span>
+
+<span class="sd">    If `kwargs[&#39;shell&#39;]` is true, `Popen` expects a string,</span>
+<span class="sd">    and so if `cmd` is not a string, it is joined using `shlex`.</span>
+
+<span class="sd">    If `kwargs[&#39;shell&#39;]` is false, `Popen` expects a list of strings,</span>
+<span class="sd">    and so if `cmd` is a string, it is split using `shlex`.</span>
+
+<span class="sd">    If `by_lines` is true, use readline() to get each new item;</span>
+<span class="sd">    if false, use read1().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">by_lines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s1">&#39;stdout&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="s1">&#39;stderr&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot set stdout or stderr&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="n">cmd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">by_lines</span> <span class="o">=</span> <span class="n">by_lines</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="n">DEFAULTS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_threads</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">shell</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shell&#39;</span><span class="p">)</span>
+        <span class="n">is_str</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_str</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">shell</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_str</span> <span class="ow">and</span> <span class="n">shell</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">returncode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Yields a sequence of `ok, line` pairs from `stdout` and `stderr` of</span>
+<span class="sd">        a subprocess, where `ok` is `True` if `line` came from `stdout`</span>
+<span class="sd">        and `False` if it came from `stderr`.</span>
+
+<span class="sd">        After iteration is done, the `.returncode` property contains</span>
+<span class="sd">        the error code from the subprocess, an integer where 0 means no error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ok</span> <span class="ow">in</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_start_thread</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">)))</span>
+
+            <span class="n">finished</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">finished</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">ok</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">finished</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the subprocess, and call function `out` with lines from</span>
+<span class="sd">        `stdout` and function `err` with lines from `stderr`.</span>
+
+<span class="sd">        Blocks until the subprocess is complete: the callbacks to `out` and</span>
+<span class="sd">        &#39;err` are on the current thread.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">callback</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span>
+
+    <span class="k">def</span> <span class="nf">call_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the subprocess, and asynchronously call function `out` with lines</span>
+<span class="sd">        from `stdout`, and function `err` with lines from `stderr`.</span>
+
+<span class="sd">        Does not block - immediately returns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">:</span>
+            <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ok</span> <span class="ow">in</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_start_thread</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads lines from `stdout` and `stderr` into two lists `out` and `err`,</span>
+<span class="sd">        then returns a tuple `(out, err, returncode)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span>
+
+    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">&#39;! &#39;</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="nb">print</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read lines from `stdin` and `stderr` and prints them with prefixes</span>
+
+<span class="sd">        Returns the shell integer error code from the subprocess, where 0 means</span>
+<span class="sd">        no error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">out</span> <span class="o">+</span> <span class="n">x</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">err</span> <span class="o">+</span> <span class="n">x</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Join the stream handling threads&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threads</span><span class="p">:</span>
+            <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Kill the running process, if any&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_start_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ok</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">read_stream</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">stdout</span> <span class="k">if</span> <span class="n">ok</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">stderr</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+                <span class="k">while</span> <span class="n">line</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">by_lines</span><span class="p">:</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">line</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read1</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
+                        <span class="n">callback</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">callback</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">th</span> <span class="o">=</span> <span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">read_stream</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">th</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">th</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">and</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">lambda</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span> <span class="ow">and</span> <span class="p">(</span><span class="n">out</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">if</span> <span class="n">ok</span> <span class="k">else</span> <span class="n">err</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">out</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">lambda</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span> <span class="ow">and</span> <span class="n">ok</span> <span class="ow">and</span> <span class="n">out</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">lambda</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ok</span> <span class="ow">and</span> <span class="n">err</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">lambda</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span><span class="p">:</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+        </details>
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sproc.Sub.__iter__" class="doc doc-heading">
+<code class="highlight language-python"><span class="fm">__iter__</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Yields a sequence of <code>ok, line</code> pairs from <code>stdout</code> and <code>stderr</code> of
+a subprocess, where <code>ok</code> is <code>True</code> if <code>line</code> came from <code>stdout</code>
+and <code>False</code> if it came from <code>stderr</code>.</p>
+<p>After iteration is done, the <code>.returncode</code> property contains
+the error code from the subprocess, an integer where 0 means no error.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>sproc/sproc.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Yields a sequence of `ok, line` pairs from `stdout` and `stderr` of</span>
+<span class="sd">    a subprocess, where `ok` is `True` if `line` came from `stdout`</span>
+<span class="sd">    and `False` if it came from `stderr`.</span>
+
+<span class="sd">    After iteration is done, the `.returncode` property contains</span>
+<span class="sd">    the error code from the subprocess, an integer where 0 means no error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ok</span> <span class="ow">in</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_start_thread</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">)))</span>
+
+        <span class="n">finished</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">finished</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">ok</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">finished</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sproc.Sub.call" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">call</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Run the subprocess, and call function <code>out</code> with lines from
+<code>stdout</code> and function <code>err</code> with lines from <code>stderr</code>.</p>
+<p>Blocks until the subprocess is complete: the callbacks to <code>out</code> and
+'err` are on the current thread.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>sproc/sproc.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the subprocess, and call function `out` with lines from</span>
+<span class="sd">    `stdout` and function `err` with lines from `stderr`.</span>
+
+<span class="sd">    Blocks until the subprocess is complete: the callbacks to `out` and</span>
+<span class="sd">    &#39;err` are on the current thread.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ok</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+        <span class="n">callback</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sproc.Sub.call_async" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">call_async</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Run the subprocess, and asynchronously call function <code>out</code> with lines
+from <code>stdout</code>, and function <code>err</code> with lines from <code>stderr</code>.</p>
+<p>Does not block - immediately returns.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>sproc/sproc.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the subprocess, and asynchronously call function `out` with lines</span>
+<span class="sd">    from `stdout`, and function `err` with lines from `stderr`.</span>
+
+<span class="sd">    Does not block - immediately returns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">as</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="p">:</span>
+        <span class="n">callback</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ok</span> <span class="ow">in</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_start_thread</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sproc.Sub.join" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Join the stream handling threads</p>
+
+      <details class="quote">
+        <summary>Source code in <code>sproc/sproc.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Join the stream handling threads&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threads</span><span class="p">:</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sproc.Sub.kill" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">kill</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Kill the running process, if any</p>
+
+      <details class="quote">
+        <summary>Source code in <code>sproc/sproc.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Kill the running process, if any&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sproc.Sub.log" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">log</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">&#39;! &#39;</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="nb">print</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Read lines from <code>stdin</code> and <code>stderr</code> and prints them with prefixes</p>
+<p>Returns the shell integer error code from the subprocess, where 0 means
+no error.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>sproc/sproc.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">&#39;! &#39;</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="nb">print</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read lines from `stdin` and `stderr` and prints them with prefixes</span>
+
+<span class="sd">    Returns the shell integer error code from the subprocess, where 0 means</span>
+<span class="sd">    no error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">out</span> <span class="o">+</span> <span class="n">x</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">err</span> <span class="o">+</span> <span class="n">x</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="sproc.Sub.run" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">run</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Reads lines from <code>stdout</code> and <code>stderr</code> into two lists <code>out</code> and <code>err</code>,
+then returns a tuple <code>(out, err, returncode)</code></p>
+
+      <details class="quote">
+        <summary>Source code in <code>sproc/sproc.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reads lines from `stdout` and `stderr` into two lists `out` and `err`,</span>
+<span class="sd">    then returns a tuple `(out, err, returncode)`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.db81ec45.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.a00a7c5e.min.js"></script>
+      
+    
+  </body>
+</html>
