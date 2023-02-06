@@ -1,0 +1,19 @@
+site_name: '⛏: `sproc`: Subprocesseses for subhumanses ⛏'
+
+theme:
+  name: material
+
+  palette:
+    primary:
+      'amber'
+
+  font:
+    text:
+      Roboto
+    code:
+      Roboto Mono
+
+extra_css: [extra.css]
+
+plugins:
+    - mkdocstrings
