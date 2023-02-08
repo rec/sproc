@@ -9,7 +9,6 @@ Run a command in a subprocess and yield lines of text from stdout and stderr
 EXAMPLES
 *********
 
-.. code-block:: python
 
     import sproc
 
