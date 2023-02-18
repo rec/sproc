@@ -7,7 +7,7 @@ Run a command in a subprocess and yield lines of text from `stdout` and
 Useful for handling long-running proceesses that write to both `stdout` and
 `stderr`.
 
-Example:
+### Simple Example
 
     import sproc
 
@@ -46,7 +46,7 @@ DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
 
 class Sub:
     """
-    Iterate over lines or chunks of text from a subprocess.
+    Sub is a class to Iterate over lines or chunks of text from a subprocess.
 
     If `by_lines` is true, use readline() to get each new item;
     if false, use read1().
