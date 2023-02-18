@@ -1,14 +1,13 @@
 """
-##################################################
 ⛏️sproc: subprocesseses for subhumanses  ⛏
-##################################################
 
-Run a command in a subprocess and yield lines of text from stdout and stderr
+Run a command in a subprocess and yield lines of text from `stdout` and
+`stderr` independently.
 
-*********
-EXAMPLES
-*********
+Useful for handling long-running proceesses that write to both `stdout` and
+`stderr`.
 
+Example:
 
     import sproc
 
@@ -35,11 +34,12 @@ EXAMPLES
 
 from queue import Queue
 from threading import Thread
+from typing import Sequence, Optional, Union
 import functools
 import shlex
 import subprocess
 
-__all__ = ('Sub', 'call', 'call_async', 'run', 'log')
+__all__ = 'Sub', 'call', 'call_in_thread', 'run', 'log'
 
 DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
 
@@ -48,18 +48,31 @@ class Sub:
     """
     Iterate over lines or chunks of text from a subprocess.
 
-    If `kwargs['shell']` is true, `Popen` expects a string,
-    and so if `cmd` is not a string, it is joined using `shlex`.
-
-    If `kwargs['shell']` is false, `Popen` expects a list of strings,
-    and so if `cmd` is a string, it is split using `shlex`.
-
     If `by_lines` is true, use readline() to get each new item;
     if false, use read1().
-    """
 
+    Args:
+      cmd:  The command to run in a subprocess
+
+      by_lines:  If `by_lines` is true, `Sub` uses readline() to get each new
+          item;  otherwise, it uses read1() to get each chunk as it comes.
+
+      kwargs: The arguments to subprocess.Popen.
+
+          If `kwargs['shell']` is true, `Popen` expects a string,
+          and so if `cmd` is not a string, it is joined using `shlex`.
+
+          If `kwargs['shell']` is false, `Popen` expects a list of strings,
+          and so if `cmd` is a string, it is split using `shlex`.
+    """
     @functools.wraps(subprocess.Popen)
-    def __init__(self, cmd, *, by_lines=True, **kwargs):
+    def __init__(
+        self,
+        cmd: Union[str, Sequence[str]],
+        *,
+        by_lines: bool = True,
+        **kwargs
+    ):
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
 
@@ -68,13 +81,13 @@ class Sub:
         self.kwargs = dict(kwargs, **DEFAULTS)
         self._threads = []
 
-        shell = kwargs.get('shell')
-        is_str = isinstance(cmd, str)
-
-        if is_str and not shell:
-            self.cmd = shlex.split(cmd)
-        if not is_str and shell:
-            self.cmd = shlex.join(cmd)
+        shell = kwargs.get('shell', False)
+        if isinstance(cmd, str):
+            if not shell:
+                self.cmd = shlex.split(cmd)
+        else:
+            if shell:
+                self.cmd = shlex.join(cmd)
 
     @property
     def returncode(self):
@@ -110,6 +123,13 @@ class Sub:
 
         Blocks until the subprocess is complete: the callbacks to `out` and
         'err` are on the current thread.
+
+        Args:
+            out: if not None, `out` is called for each line from the
+                subprocess's stdout
+
+            err: if not None, `err` is called for each line from the
+                subprocess's stderr,
         """
         callback = self._callback(out, err)
         for ok, line in self:
@@ -118,12 +138,23 @@ class Sub:
         return self.returncode
 
     def call_async(self, out=None, err=None):
+        # DEPRECATED
+        return self.call_in_thread(out, err)
+
+    def call_in_thread(self, out=None, err=None):
         """
         Run the subprocess, and asynchronously call function `out` with lines
         from `stdout`, and function `err` with lines from `stderr`.
 
         Does not block - immediately returns.
-        """
+
+        Args:
+            out: If not None, `out` is called for each line from the
+                subprocess's stdout
+
+            err: If not None, `err` is called for each line from the
+                subprocess's stderr,
+    """
         with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
             callback = self._callback(out, err)
             for ok in False, True:
@@ -144,6 +175,11 @@ class Sub:
 
         Returns the shell integer error code from the subprocess, where 0 means
         no error.
+
+        Args:
+            out: The contents of `out` prepends strings from stdout
+            err: The contents of `err` prepends strings from stderr
+            print: A function that accepts individual strings
         """
         return self.call(lambda x: print(out + x), lambda x: print(err + x))
 
@@ -190,71 +226,51 @@ class Sub:
 
 
 def call(cmd, out=None, err=None, **kwds):
-    return Sub(cmd, **kwds).call(out, err)
+   """
+    Args:
+      cmd:  The command to run in a subprocess
+
+      kwargs: The arguments to subprocess.Popen.
+
+      out: if not None, `out` is called for each line from the
+          subprocess's stdout
+
+      err: if not None, `err` is called for each line from the
+          subprocess's stderr,
+        """
+   return Sub(cmd, **kwds).call(out, err)
 
 
-def call_async(cmd, out=None, err=None, **kwds):
-    return Sub(cmd, **kwds).call_async(out, err)
+def call_in_thread(cmd, out=None, err=None, **kwds):
+   """
+    Args:
+      cmd:  The command to run in a subprocess
+
+      kwargs: The arguments to subprocess.Popen.
+
+      out: if not None, `out` is called for each line from the
+          subprocess's stdout
+
+      err: if not None, `err` is called for each line from the
+          subprocess's stderr,
+        """
+   return Sub(cmd, **kwds).call_in_thread(out, err)
 
 
+call_async = call_in_thread
+
+
+@functools.wraps(Sub.__init__)
 def run(cmd, **kwds):
     return Sub(cmd, **kwds).run()
 
 
 def log(cmd, out='  ', err='! ', print=print, **kwds):
-    return Sub(cmd, **kwds).log(out, err, print)
-
-
-_ARG = """
-ARGUMENTS"""
-_CMD = """
-  cmd:
-    The command to run in a subprocess: a string or a list or tuple of strings
-"""
-_KW = """
-  kwargs:
-    Keyword arguments passed to subprocess.Popen()
-"""
-_CALL_OUT = """
-  out:
-    if not None, `out` is called for each line from the subprocess's stdout
-"""
-_CALL_ERR = """
-  err:
-    if not None, `err` is called for each line from the subprocess's stderr,
-"""
-_LOG_OUT = """
-  out:
-    Prefix for printing lines from stdout
-"""
-_LOG_ERR = """
-  err:
-    Prefix for printing lines from stderr
-"""
-_PRINT = """
-  print:
-    a function that accepts individual strings
-"""
-
-
-def _unindent(s, offset=8):
-    return '\n'.join(i[offset:] for i in s.__doc__.splitlines())
-
-
-Sub.__doc__ = _unindent(Sub, 4) + _ARG + _CMD + _KW
-
-call.__doc__ = _unindent(Sub.call) + _ARG + _CMD + _CALL_OUT + _CALL_ERR + _KW
-Sub.call.__doc__ = _unindent(Sub.call) + _ARG + _CALL_OUT + _CALL_ERR
-
-call_async.__doc__ = _unindent(Sub.call_async) + (
-    _ARG + _CMD + _CALL_OUT + _CALL_ERR + _KW
-)
-Sub.call_async.__doc__ = _unindent(Sub.call_async) + (
-    _ARG + _CALL_OUT + _CALL_ERR
-)
-
-run.__doc__ = _unindent(Sub.run) + _ARG + _CMD + _KW
-Sub.run.__doc__ = _unindent(Sub.run)
-
-log.__doc__ = _unindent(Sub.log) + _ARG + _CMD + _LOG_OUT + _LOG_ERR + _KW
-Sub.log.__doc__ = _unindent(Sub.log) + (_ARG + _LOG_OUT + _LOG_ERR)
+   """
+    Args:
+        cmd:  The command to run in a subprocess
+        out: The contents of `out` prepends strings from stdout
+        err: The contents of `err` prepends strings from stderr
+        print: A function that accepts individual strings
+        """
+   return Sub(cmd, **kwds).log(out, err, print)
