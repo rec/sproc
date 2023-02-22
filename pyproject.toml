@@ -9,7 +9,7 @@ version = "2.1.1"
 description = "⛏ Subprocesseses for subhumanses ⛏"
 authors = ["Tom Ritchford <tom@swirly.com>"]
 license = "MIT"
-readme = "README.me"
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.7"
