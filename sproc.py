@@ -241,7 +241,7 @@ def call(
 
 
 def call_in_thread(
-    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Mapping
 ):
     """
     Args:
