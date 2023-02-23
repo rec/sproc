@@ -223,25 +223,25 @@ class Sub:
 
 
 def call(
-    cmd: Cmd, out: Callback = None, err: Callback = None, **kwds: Mapping
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Mapping
 ):
     """
     Args:
       cmd:  The command to run in a subprocess
-
-      kwargs: The arguments to subprocess.Popen.
 
       out: if not None, `out` is called for each line from the
           subprocess's stdout
 
       err: if not None, `err` is called for each line from the
           subprocess's stderr,
+
+      kwargs: The arguments to subprocess.Popen.
     """
-    return Sub(cmd, **kwds).call(out, err)
+    return Sub(cmd, **kwargs).call(out, err)
 
 
 def call_in_thread(
-    cmd: Cmd, out: Callback = None, err: Callback = None, **kwds: Mapping
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs
 ):
     """
     Args:
@@ -255,19 +255,19 @@ def call_in_thread(
 
       kwargs: The arguments to subprocess.Popen.
     """
-    return Sub(cmd, **kwds).call_in_thread(out, err)
+    return Sub(cmd, **kwargs).call_in_thread(out, err)
 
 
 call_async = call_in_thread
 
 
 @functools.wraps(Sub.__init__)
-def run(cmd: Cmd, **kwds: Mapping):
-    return Sub(cmd, **kwds).run()
+def run(cmd: Cmd, **kwargs: Mapping):
+    return Sub(cmd, **kwargs).run()
 
 
 def log(
-    cmd: Cmd, out: str = '  ', err: str = '! ', print: Callable = print, **kwds
+    cmd: Cmd, out: str = '  ', err: str = '! ', print: Callable = print, **kwargs
 ):
     """
     Args:
@@ -276,4 +276,4 @@ def log(
         err: The contents of `err` prepends strings from stderr
         print: A function that accepts individual strings
     """
-    return Sub(cmd, **kwds).log(out, err, print)
+    return Sub(cmd, **kwargs).log(out, err, print)
