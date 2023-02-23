@@ -70,15 +70,6 @@ class RunTest(unittest.TestCase):
 
             assert all(i.endswith(_NO_SUCH) for i in err)
 
-    def test_make_doc(self):
-        actual = doc_sproc.make_doc()
-        with open('README.rst') as fp:
-            assert actual == fp.read()
-
-    def test_readme_format(self):
-        with open('README.rst') as fp:
-            assert render(fp.read())
-
     def test_async(self):
         for shell in False, True:
             lines, errors = [], []

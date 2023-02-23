@@ -34,7 +34,7 @@ Useful for handling long-running proceesses that write to both `stdout` and
 
 from queue import Queue
 from threading import Thread
-from typing import Sequence, Optional, Union
+from typing import Callable, Mapping, Optional, Sequence, Union
 import functools
 import shlex
 import subprocess
@@ -42,6 +42,9 @@ import subprocess
 __all__ = 'Sub', 'call', 'call_in_thread', 'run', 'log'
 
 DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
+
+Callback = Optional[Callable]
+Cmd = Union[str, Sequence[str]]
 
 
 class Sub:
@@ -66,13 +69,7 @@ class Sub:
           and so if `cmd` is a string, it is split using `shlex`.
     """
     @functools.wraps(subprocess.Popen)
-    def __init__(
-        self,
-        cmd: Union[str, Sequence[str]],
-        *,
-        by_lines: bool = True,
-        **kwargs
-    ):
+    def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: Mapping):
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
 
@@ -116,7 +113,7 @@ class Sub:
                 else:
                     finished += 1
 
-    def call(self, out=None, err=None):
+    def call(self, out: Callback = None, err: Callback = None):
         """
         Run the subprocess, and call function `out` with lines from
         `stdout` and function `err` with lines from `stderr`.
@@ -137,11 +134,11 @@ class Sub:
 
         return self.returncode
 
-    def call_async(self, out=None, err=None):
-        # DEPRECATED
+    def call_async(self, out: Callback = None, err: Callback = None):
+        # DEPRECATED: now called "call_in_thread"
         return self.call_in_thread(out, err)
 
-    def call_in_thread(self, out=None, err=None):
+    def call_in_thread(self, out: Callback = None, err: Callback = None):
         """
         Run the subprocess, and asynchronously call function `out` with lines
         from `stdout`, and function `err` with lines from `stderr`.
@@ -169,7 +166,7 @@ class Sub:
         self.call(out.append, err.append)
         return out, err, self.returncode
 
-    def log(self, out='  ', err='! ', print=print):
+    def log(self, out: str = '  ', err: str = '! ', print: Callable = print):
         """
         Read lines from `stdin` and `stderr` and prints them with prefixes
 
@@ -183,7 +180,7 @@ class Sub:
         """
         return self.call(lambda x: print(out + x), lambda x: print(err + x))
 
-    def join(self, timeout=None):
+    def join(self, timeout: Optional[int] = None):
         """Join the stream handling threads"""
         for t in self._threads:
             t.join(timeout)
@@ -225,8 +222,10 @@ class Sub:
             return lambda ok, line: None
 
 
-def call(cmd, out=None, err=None, **kwds):
-   """
+def call(
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwds: Mapping
+):
+    """
     Args:
       cmd:  The command to run in a subprocess
 
@@ -237,40 +236,44 @@ def call(cmd, out=None, err=None, **kwds):
 
       err: if not None, `err` is called for each line from the
           subprocess's stderr,
-        """
-   return Sub(cmd, **kwds).call(out, err)
+    """
+    return Sub(cmd, **kwds).call(out, err)
 
 
-def call_in_thread(cmd, out=None, err=None, **kwds):
-   """
+def call_in_thread(
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwds: Mapping
+):
+    """
     Args:
       cmd:  The command to run in a subprocess
-
-      kwargs: The arguments to subprocess.Popen.
 
       out: if not None, `out` is called for each line from the
           subprocess's stdout
 
       err: if not None, `err` is called for each line from the
           subprocess's stderr,
-        """
-   return Sub(cmd, **kwds).call_in_thread(out, err)
+
+      kwargs: The arguments to subprocess.Popen.
+    """
+    return Sub(cmd, **kwds).call_in_thread(out, err)
 
 
 call_async = call_in_thread
 
 
 @functools.wraps(Sub.__init__)
-def run(cmd, **kwds):
+def run(cmd: Cmd, **kwds: Mapping):
     return Sub(cmd, **kwds).run()
 
 
-def log(cmd, out='  ', err='! ', print=print, **kwds):
-   """
+def log(
+    cmd: Cmd, out: str = '  ', err: str = '! ', print: Callable = print, **kwds
+):
+    """
     Args:
         cmd:  The command to run in a subprocess
         out: The contents of `out` prepends strings from stdout
         err: The contents of `err` prepends strings from stderr
         print: A function that accepts individual strings
-        """
-   return Sub(cmd, **kwds).log(out, err, print)
+    """
+    return Sub(cmd, **kwds).log(out, err, print)
