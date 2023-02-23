@@ -528,7 +528,7 @@ if false, use read1().</p>
         <tr>
           <td><code>cmd</code></td>
           <td>
-                <code><span title="typing.Union">Union</span>[str, <span title="typing.Sequence">Sequence</span>[str]]</code>
+                <code><span title="sproc.Cmd">Cmd</span></code>
           </td>
           <td><p>The command to run in a subprocess</p></td>
           <td>
@@ -549,6 +549,7 @@ if false, use read1().</p>
         <tr>
           <td><code>kwargs</code></td>
           <td>
+                <code><span title="typing.Mapping">Mapping</span></code>
           </td>
           <td>
 <p>The arguments to subprocess.Popen.</p>
@@ -568,10 +569,7 @@ if false, use read1().</p>
         <details class="quote">
           <summary>Source code in <code>sproc/sproc.py</code></summary>
           <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 47</span>
-<span class="normal"> 48</span>
-<span class="normal"> 49</span>
-<span class="normal"> 50</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 50</span>
 <span class="normal"> 51</span>
 <span class="normal"> 52</span>
 <span class="normal"> 53</span>
@@ -743,10 +741,7 @@ if false, use read1().</p>
 <span class="normal">219</span>
 <span class="normal">220</span>
 <span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span></pre></div></td>
+<span class="normal">222</span></pre></div></td>
 <td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Sub</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Sub is a class to Iterate over lines or chunks of text from a subprocess.</span>
@@ -769,13 +764,7 @@ if false, use read1().</p>
 <span class="sd">          and so if `cmd` is a string, it is split using `shlex`.</span>
 <span class="sd">    """</span>
     <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">)</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">cmd</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">by_lines</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="n">Cmd</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">by_lines</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">):</span>
         <span class="k">if</span> <span class="s1">'stdout'</span> <span class="ow">in</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="s1">'stderr'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot set stdout or stderr'</span><span class="p">)</span>
 
@@ -819,7 +808,7 @@ if false, use read1().</p>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">finished</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the subprocess, and call function `out` with lines from</span>
 <span class="sd">        `stdout` and function `err` with lines from `stderr`.</span>
@@ -840,11 +829,11 @@ if false, use read1().</p>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span>
 
-    <span class="k">def</span> <span class="nf">call_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># DEPRECATED</span>
+    <span class="k">def</span> <span class="nf">call_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># DEPRECATED: now called "call_in_thread"</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_in_thread</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">call_in_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">call_in_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run the subprocess, and asynchronously call function `out` with lines</span>
 <span class="sd">        from `stdout`, and function `err` with lines from `stderr`.</span>
@@ -872,7 +861,7 @@ if false, use read1().</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">,</span> <span class="n">err</span><span class="o">.</span><span class="n">append</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">returncode</span>
 
-    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">'  '</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">'! '</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="nb">print</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'  '</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'! '</span><span class="p">,</span> <span class="nb">print</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">print</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Read lines from `stdin` and `stderr` and prints them with prefixes</span>
 
@@ -886,7 +875,7 @@ if false, use read1().</p>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">out</span> <span class="o">+</span> <span class="n">x</span><span class="p">),</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">err</span> <span class="o">+</span> <span class="n">x</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Join the stream handling threads"""</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threads</span><span class="p">:</span>
             <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
@@ -963,7 +952,10 @@ the error code from the subprocess, an integer where 0 means no error.</p>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
@@ -981,10 +973,7 @@ the error code from the subprocess, an integer where 0 means no error.</p>
 <span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span></pre></div></td>
+<span class="normal">114</span></pre></div></td>
 <td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Yields a sequence of `ok, line` pairs from `stdout` and `stderr` of</span>
@@ -1045,6 +1034,7 @@ the error code from the subprocess, an integer where 0 means no error.</p>
         <tr>
           <td><code>out</code></td>
           <td>
+                <code><span title="sproc.Callback">Callback</span></code>
           </td>
           <td><p>if not None, <code>out</code> is called for each line from the
 subprocess's stdout</p></td>
@@ -1055,6 +1045,7 @@ subprocess's stdout</p></td>
         <tr>
           <td><code>err</code></td>
           <td>
+                <code><span title="sproc.Callback">Callback</span></code>
           </td>
           <td><p>if not None, <code>err</code> is called for each line from the
 subprocess's stderr,</p></td>
@@ -1068,7 +1059,10 @@ subprocess's stderr,</p></td>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
@@ -1084,11 +1078,8 @@ subprocess's stderr,</p></td>
 <span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span></pre></div></td>
-<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">135</span></pre></div></td>
+<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run the subprocess, and call function `out` with lines from</span>
 <span class="sd">    `stdout` and function `err` with lines from `stderr`.</span>
@@ -1145,6 +1136,7 @@ from <code>stdout</code>, and function <code>err</code> with lines from <code>st
         <tr>
           <td><code>out</code></td>
           <td>
+                <code><span title="sproc.Callback">Callback</span></code>
           </td>
           <td><p>If not None, <code>out</code> is called for each line from the
 subprocess's stdout</p></td>
@@ -1155,6 +1147,7 @@ subprocess's stdout</p></td>
         <tr>
           <td><code>err</code></td>
           <td>
+                <code><span title="sproc.Callback">Callback</span></code>
           </td>
           <td><p>If not None, <code>err</code> is called for each line from the
 subprocess's stderr,</p></td>
@@ -1168,7 +1161,10 @@ subprocess's stderr,</p></td>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
@@ -1182,11 +1178,8 @@ subprocess's stderr,</p></td>
 <span class="normal">155</span>
 <span class="normal">156</span>
 <span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span></pre></div></td>
-<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call_in_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">158</span></pre></div></td>
+<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call_in_thread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run the subprocess, and asynchronously call function `out` with lines</span>
 <span class="sd">    from `stdout`, and function `err` with lines from `stderr`.</span>
@@ -1228,11 +1221,11 @@ subprocess's stderr,</p></td>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span></pre></div></td>
-<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td>
+<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Join the stream handling threads"""</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threads</span><span class="p">:</span>
         <span class="n">t</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
@@ -1260,9 +1253,9 @@ subprocess's stderr,</p></td>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span></pre></div></td>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span></pre></div></td>
 <td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">kill</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Kill the running process, if any"""</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">proc</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">proc</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
@@ -1303,6 +1296,7 @@ no error.</p>
         <tr>
           <td><code>out</code></td>
           <td>
+                <code>str</code>
           </td>
           <td><p>The contents of <code>out</code> prepends strings from stdout</p></td>
           <td>
@@ -1312,6 +1306,7 @@ no error.</p>
         <tr>
           <td><code>err</code></td>
           <td>
+                <code>str</code>
           </td>
           <td><p>The contents of <code>err</code> prepends strings from stderr</p></td>
           <td>
@@ -1321,6 +1316,7 @@ no error.</p>
         <tr>
           <td><code>print</code></td>
           <td>
+                <code><span title="typing.Callable">Callable</span></code>
           </td>
           <td><p>A function that accepts individual strings</p></td>
           <td>
@@ -1333,7 +1329,10 @@ no error.</p>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">172</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
 <span class="normal">173</span>
 <span class="normal">174</span>
 <span class="normal">175</span>
@@ -1342,11 +1341,8 @@ no error.</p>
 <span class="normal">178</span>
 <span class="normal">179</span>
 <span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span></pre></div></td>
-<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">'  '</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">'! '</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="nb">print</span><span class="p">):</span>
+<span class="normal">181</span></pre></div></td>
+<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'  '</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'! '</span><span class="p">,</span> <span class="nb">print</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">print</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Read lines from `stdin` and `stderr` and prints them with prefixes</span>
 
@@ -1384,14 +1380,14 @@ then returns a tuple <code>(out, err, returncode)</code></p>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
 <span class="normal">164</span>
 <span class="normal">165</span>
 <span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span></pre></div></td>
+<span class="normal">167</span></pre></div></td>
 <td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Reads lines from `stdout` and `stderr` into two lists `out` and `err`,</span>
@@ -1443,6 +1439,7 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>cmd</code></td>
           <td>
+                <code><span title="sproc.Cmd">Cmd</span></code>
           </td>
           <td><p>The command to run in a subprocess</p></td>
           <td>
@@ -1461,6 +1458,7 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>out</code></td>
           <td>
+                <code><span title="sproc.Callback">Callback</span></code>
           </td>
           <td><p>if not None, <code>out</code> is called for each line from the
   subprocess's stdout</p></td>
@@ -1471,6 +1469,7 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>err</code></td>
           <td>
+                <code><span title="sproc.Callback">Callback</span></code>
           </td>
           <td><p>if not None, <code>err</code> is called for each line from the
   subprocess's stderr,</p></td>
@@ -1484,7 +1483,10 @@ then returns a tuple <code>(out, err, returncode)</code></p>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">228</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
@@ -1496,10 +1498,11 @@ then returns a tuple <code>(out, err, returncode)</code></p>
 <span class="normal">237</span>
 <span class="normal">238</span>
 <span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span></pre></div></td>
-<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-<span class="w">   </span><span class="sd">"""</span>
+<span class="normal">240</span></pre></div></td>
+<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call</span><span class="p">(</span>
+    <span class="n">cmd</span><span class="p">:</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Mapping</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Args:</span>
 <span class="sd">      cmd:  The command to run in a subprocess</span>
 
@@ -1510,8 +1513,8 @@ then returns a tuple <code>(out, err, returncode)</code></p>
 
 <span class="sd">      err: if not None, `err` is called for each line from the</span>
 <span class="sd">          subprocess's stderr,</span>
-<span class="sd">        """</span>
-   <span class="k">return</span> <span class="n">Sub</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Sub</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
 </code></pre></div></td>
 </tr></table></div>
       </details>
@@ -1546,10 +1549,33 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>cmd</code></td>
           <td>
+                <code><span title="sproc.Cmd">Cmd</span></code>
           </td>
           <td><p>The command to run in a subprocess</p></td>
           <td>
               <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>out</code></td>
+          <td>
+                <code><span title="sproc.Callback">Callback</span></code>
+          </td>
+          <td><p>if not None, <code>out</code> is called for each line from the
+  subprocess's stdout</p></td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>err</code></td>
+          <td>
+                <code><span title="sproc.Callback">Callback</span></code>
+          </td>
+          <td><p>if not None, <code>err</code> is called for each line from the
+  subprocess's stderr,</p></td>
+          <td>
+                <code>None</code>
           </td>
         </tr>
         <tr>
@@ -1561,33 +1587,14 @@ then returns a tuple <code>(out, err, returncode)</code></p>
               <em>required</em>
           </td>
         </tr>
-        <tr>
-          <td><code>out</code></td>
-          <td>
-          </td>
-          <td><p>if not None, <code>out</code> is called for each line from the
-  subprocess's stdout</p></td>
-          <td>
-                <code>None</code>
-          </td>
-        </tr>
-        <tr>
-          <td><code>err</code></td>
-          <td>
-          </td>
-          <td><p>if not None, <code>err</code> is called for each line from the
-  subprocess's stderr,</p></td>
-          <td>
-                <code>None</code>
-          </td>
-        </tr>
     </tbody>
   </table>
 
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">244</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">243</span>
+<span class="normal">244</span>
 <span class="normal">245</span>
 <span class="normal">246</span>
 <span class="normal">247</span>
@@ -1600,21 +1607,24 @@ then returns a tuple <code>(out, err, returncode)</code></p>
 <span class="normal">254</span>
 <span class="normal">255</span>
 <span class="normal">256</span>
-<span class="normal">257</span></pre></div></td>
-<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call_in_thread</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-<span class="w">   </span><span class="sd">"""</span>
+<span class="normal">257</span>
+<span class="normal">258</span></pre></div></td>
+<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">call_in_thread</span><span class="p">(</span>
+    <span class="n">cmd</span><span class="p">:</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Callback</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">:</span> <span class="n">Mapping</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Args:</span>
 <span class="sd">      cmd:  The command to run in a subprocess</span>
-
-<span class="sd">      kwargs: The arguments to subprocess.Popen.</span>
 
 <span class="sd">      out: if not None, `out` is called for each line from the</span>
 <span class="sd">          subprocess's stdout</span>
 
 <span class="sd">      err: if not None, `err` is called for each line from the</span>
 <span class="sd">          subprocess's stderr,</span>
-<span class="sd">        """</span>
-   <span class="k">return</span> <span class="n">Sub</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span><span class="o">.</span><span class="n">call_in_thread</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
+<span class="sd">      kwargs: The arguments to subprocess.Popen.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Sub</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span><span class="o">.</span><span class="n">call_in_thread</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
 </code></pre></div></td>
 </tr></table></div>
       </details>
@@ -1649,6 +1659,7 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>cmd</code></td>
           <td>
+                <code><span title="sproc.Cmd">Cmd</span></code>
           </td>
           <td><p>The command to run in a subprocess</p></td>
           <td>
@@ -1658,6 +1669,7 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>out</code></td>
           <td>
+                <code>str</code>
           </td>
           <td><p>The contents of <code>out</code> prepends strings from stdout</p></td>
           <td>
@@ -1667,6 +1679,7 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>err</code></td>
           <td>
+                <code>str</code>
           </td>
           <td><p>The contents of <code>err</code> prepends strings from stderr</p></td>
           <td>
@@ -1676,6 +1689,7 @@ then returns a tuple <code>(out, err, returncode)</code></p>
         <tr>
           <td><code>print</code></td>
           <td>
+                <code><span title="typing.Callable">Callable</span></code>
           </td>
           <td><p>A function that accepts individual strings</p></td>
           <td>
@@ -1688,24 +1702,28 @@ then returns a tuple <code>(out, err, returncode)</code></p>
       <details class="quote">
         <summary>Source code in <code>sproc/sproc.py</code></summary>
         <div class="highlight"><table class="highlighttable"><tr>
-<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">268</span>
-<span class="normal">269</span>
+<td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">269</span>
 <span class="normal">270</span>
 <span class="normal">271</span>
 <span class="normal">272</span>
 <span class="normal">273</span>
 <span class="normal">274</span>
 <span class="normal">275</span>
-<span class="normal">276</span></pre></div></td>
-<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="s1">'  '</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="s1">'! '</span><span class="p">,</span> <span class="nb">print</span><span class="o">=</span><span class="nb">print</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
-<span class="w">   </span><span class="sd">"""</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span></pre></div></td>
+<td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
+    <span class="n">cmd</span><span class="p">:</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'  '</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'! '</span><span class="p">,</span> <span class="nb">print</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">print</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Args:</span>
 <span class="sd">        cmd:  The command to run in a subprocess</span>
 <span class="sd">        out: The contents of `out` prepends strings from stdout</span>
 <span class="sd">        err: The contents of `err` prepends strings from stderr</span>
 <span class="sd">        print: A function that accepts individual strings</span>
-<span class="sd">        """</span>
-   <span class="k">return</span> <span class="n">Sub</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="nb">print</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Sub</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="p">,</span> <span class="nb">print</span><span class="p">)</span>
 </code></pre></div></td>
 </tr></table></div>
       </details>
