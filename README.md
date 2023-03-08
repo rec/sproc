@@ -1,3 +1,5 @@
+# ⛏️sproc: subprocesseses for subhumanses  ⛏
+
 Run a command in a subprocess and yield lines of text from `stdout` and
 `stderr` independently.
 

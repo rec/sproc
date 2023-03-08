@@ -1,5 +1,3 @@
-from readme_renderer.rst import render
-import doc_sproc
 import sproc
 import unittest
 

@@ -1,5 +1,5 @@
 """
-⛏️sproc: subprocesseses for subhumanses  ⛏
+# ⛏️sproc: subprocesseses for subhumanses  ⛏
 
 Run a command in a subprocess and yield lines of text from `stdout` and
 `stderr` independently.
@@ -267,7 +267,11 @@ def run(cmd: Cmd, **kwargs: Mapping):
 
 
 def log(
-    cmd: Cmd, out: str = '  ', err: str = '! ', print: Callable = print, **kwargs
+    cmd: Cmd,
+    out: str = '  ',
+    err: str = '! ',
+    print: Callable = print,
+    **kwargs
 ):
     """
     Args:
