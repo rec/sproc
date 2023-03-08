@@ -55,7 +55,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="">
   
     
     
@@ -183,7 +183,14 @@
     sproc
   </a>
   
-    <nav class="md-nav" aria-label="sproc">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sproc--sproc-subprocesseses-for-subhumanses" class="md-nav__link">
+    &#9935;&#65039;sproc: subprocesseses for subhumanses  &#9935;
+  </a>
+  
+    <nav class="md-nav" aria-label="&#9935;&#65039;sproc: subprocesseses for subhumanses  &#9935;">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -327,7 +334,14 @@
     sproc
   </a>
   
-    <nav class="md-nav" aria-label="sproc">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sproc--sproc-subprocesseses-for-subhumanses" class="md-nav__link">
+    &#9935;&#65039;sproc: subprocesseses for subhumanses  &#9935;
+  </a>
+  
+    <nav class="md-nav" aria-label="&#9935;&#65039;sproc: subprocesseses for subhumanses  &#9935;">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -454,8 +468,7 @@
 <a id="sproc"></a>
   <div class="doc doc-contents first">
   
-      <p>Run a command in a subprocess and yield lines of text from <code>stdout</code> and
-<code>stderr</code> independently.</p>
+      <h2 id="sproc--sproc-subprocesseses-for-subhumanses">&#9935;&#65039;sproc: subprocesseses for subhumanses  &#9935;</h2>
 <p>Useful for handling long-running proceesses that write to both <code>stdout</code> and
 <code>stderr</code>.</p>
 <h4 id="sproc--simple-example">Simple Example</h4>
@@ -1714,9 +1727,17 @@ then returns a tuple <code>(out, err, returncode)</code></p>
 <span class="normal">276</span>
 <span class="normal">277</span>
 <span class="normal">278</span>
-<span class="normal">279</span></pre></div></td>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span></pre></div></td>
 <td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">log</span><span class="p">(</span>
-    <span class="n">cmd</span><span class="p">:</span> <span class="n">Cmd</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'  '</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'! '</span><span class="p">,</span> <span class="nb">print</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">print</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="n">cmd</span><span class="p">:</span> <span class="n">Cmd</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'  '</span><span class="p">,</span>
+    <span class="n">err</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'! '</span><span class="p">,</span>
+    <span class="nb">print</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="nb">print</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Args:</span>
