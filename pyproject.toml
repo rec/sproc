@@ -20,6 +20,15 @@ flake8 = "^5.0.4"
 pytest-benchmark = "^4.0.0"
 readme-renderer = "^37.3"
 
+
+[tool.coverage]
+[tool.coverage.run]
+branch = "True"
+source = "run_subprocess/"
+
+[tool.coverage.report]
+fail_under = "50"
+skip_covered = "True"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
