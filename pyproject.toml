@@ -10,6 +10,9 @@ description = "⛏ Subprocesseses for subhumanses ⛏"
 authors = ["Tom Ritchford <tom@swirly.com>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/rec/sproc"
+homepage = "https://github.com/rec/sproc"
+documentation = "https://rec.github.io/sproc"
 
 [tool.poetry.dependencies]
 python = ">=3.8"
