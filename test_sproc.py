@@ -15,7 +15,7 @@ class RunTest(unittest.TestCase):
             error = self.sub('ls', shell=shell)
 
             assert error == 0
-            assert 'sproc.py\n' in self.lines
+            assert 'sproc\n' in self.lines
             assert len(self.lines) >= 10
 
     def test_simple_by_chunks(self):
@@ -25,7 +25,7 @@ class RunTest(unittest.TestCase):
 
             assert error == 0
             lines = ''.join(self.lines).splitlines()
-            assert 'sproc.py' in lines
+            assert 'sproc' in lines
             assert len(lines) >= 10
 
     def test_error(self):
