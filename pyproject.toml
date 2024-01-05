@@ -5,7 +5,7 @@ target-version = ['py38']
 
 [tool.poetry]
 name = "sproc"
-version = "2.3.1"
+version = "2.4.0"
 description = "⛏ Subprocesseses for subhumanses ⛏"
 authors = ["Tom Ritchford <tom@swirly.com>"]
 license = "MIT"
