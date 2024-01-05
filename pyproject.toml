@@ -18,20 +18,23 @@ documentation = "https://rec.github.io/sproc"
 python = ">=3.8"
 
 [tool.poetry.group.dev.dependencies]
-coverage = "^6.5.0"
-flake8 = "^5.0.4"
+coverage = "*"
+pytest = "*"
+mkdocs = "*"
+mypy = "*"
+ruff = "*"
 pytest-benchmark = "^4.0.0"
-readme-renderer = "^37.3"
+readme-renderer = "*"
 
 
 [tool.coverage]
 [tool.coverage.run]
-branch = "True"
+branch = true
 source = "run_subprocess/"
 
 [tool.coverage.report]
-fail_under = "50"
-skip_covered = "True"
+fail_under = 100
+skip_covered = true
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
