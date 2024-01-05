@@ -34,7 +34,7 @@ Useful for handling long-running proceesses that write to both `stdout` and
 
 from queue import Queue
 from threading import Thread
-from typing import Callable, Mapping, Optional, Sequence, Union
+from typing import Callable, List, Mapping, Optional, Sequence, Union
 import functools
 import shlex
 import subprocess
@@ -69,14 +69,14 @@ class Sub:
           and so if `cmd` is a string, it is split using `shlex`.
     """
     @functools.wraps(subprocess.Popen)
-    def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: Mapping):
+    def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: Mapping) -> None:
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
 
         self.cmd = cmd
         self.by_lines = by_lines
         self.kwargs = dict(kwargs, **DEFAULTS)
-        self._threads = []
+        self._threads: List[Thread] = []
 
         shell = kwargs.get('shell', False)
         if isinstance(cmd, str):
@@ -87,8 +87,8 @@ class Sub:
                 self.cmd = shlex.join(cmd)
 
     @property
-    def returncode(self):
-        return self.proc and self.proc.returncode
+    def returncode(self) -> int:
+        return self.proc.returncode if self.proc else 0
 
     def __iter__(self):
         """
@@ -113,7 +113,7 @@ class Sub:
                 else:
                     finished += 1
 
-    def call(self, out: Callback = None, err: Callback = None):
+    def call(self, out: Callback = None, err: Callback = None) -> int:
         """
         Run the subprocess, and call function `out` with lines from
         `stdout` and function `err` with lines from `stderr`.
@@ -134,11 +134,11 @@ class Sub:
 
         return self.returncode
 
-    def call_async(self, out: Callback = None, err: Callback = None):
+    def call_async(self, out: Callback = None, err: Callback = None) -> None:
         # DEPRECATED: now called "call_in_thread"
         return self.call_in_thread(out, err)
 
-    def call_in_thread(self, out: Callback = None, err: Callback = None):
+    def call_in_thread(self, out: Callback = None, err: Callback = None) -> None:
         """
         Run the subprocess, and asynchronously call function `out` with lines
         from `stdout`, and function `err` with lines from `stderr`.
@@ -223,8 +223,8 @@ class Sub:
 
 
 def call(
-    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Mapping
-):
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs
+) -> int:
     """
     Args:
       cmd:  The command to run in a subprocess
@@ -240,9 +240,7 @@ def call(
     return Sub(cmd, **kwargs).call(out, err)
 
 
-def call_in_thread(
-    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Mapping
-):
+def call_in_thread(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs) -> None:
     """
     Args:
       cmd:  The command to run in a subprocess
@@ -262,7 +260,7 @@ call_async = call_in_thread
 
 
 @functools.wraps(Sub.__init__)
-def run(cmd: Cmd, **kwargs: Mapping):
+def run(cmd: Cmd, **kwargs) -> int:
     return Sub(cmd, **kwargs).run()
 
 
@@ -272,7 +270,7 @@ def log(
     err: str = '! ',
     print: Callable = print,
     **kwargs
-):
+) -> int:
     """
     Args:
         cmd:  The command to run in a subprocess
