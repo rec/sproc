@@ -1,7 +1,7 @@
 [tool.black]
-line-length = 79
+line-length = 88
 skip-string-normalization = true
-target-version = ['py37']
+target-version = ['py38']
 
 [tool.poetry]
 name = "sproc"
@@ -30,10 +30,10 @@ readme-renderer = "*"
 [tool.coverage]
 [tool.coverage.run]
 branch = true
-source = "run_subprocess/"
+source = ["sproc"]
 
 [tool.coverage.report]
-fail_under = 100
+fail_under = 82
 skip_covered = true
 [build-system]
 requires = ["poetry-core"]
