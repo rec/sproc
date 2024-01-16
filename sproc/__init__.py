@@ -68,6 +68,7 @@ class Sub:
           If `kwargs['shell']` is false, `Popen` expects a list of strings,
           and so if `cmd` is a string, it is split using `shlex`.
     """
+
     @functools.wraps(subprocess.Popen)
     def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: Mapping) -> None:
         if 'stdout' in kwargs or 'stderr' in kwargs:
@@ -151,7 +152,7 @@ class Sub:
 
             err: If not None, `err` is called for each line from the
                 subprocess's stderr,
-    """
+        """
         with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
             callback = self._callback(out, err)
             for ok in False, True:
@@ -222,9 +223,7 @@ class Sub:
             return lambda ok, line: None
 
 
-def call(
-    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs
-) -> int:
+def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs) -> int:
     """
     Args:
       cmd:  The command to run in a subprocess
@@ -240,7 +239,9 @@ def call(
     return Sub(cmd, **kwargs).call(out, err)
 
 
-def call_in_thread(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs) -> None:
+def call_in_thread(
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs
+) -> None:
     """
     Args:
       cmd:  The command to run in a subprocess
@@ -265,11 +266,7 @@ def run(cmd: Cmd, **kwargs) -> int:
 
 
 def log(
-    cmd: Cmd,
-    out: str = '  ',
-    err: str = '! ',
-    print: Callable = print,
-    **kwargs
+    cmd: Cmd, out: str = '  ', err: str = '! ', print: Callable = print, **kwargs
 ) -> int:
     """
     Args:
