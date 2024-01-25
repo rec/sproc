@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sproc"
-version = "2.4.0"
+version = "2.4.1"
 description = "⛏ Subprocesseses for subhumanses ⛏"
 authors = ["Tom Ritchford <tom@swirly.com>"]
 license = "MIT"
