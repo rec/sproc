@@ -1,5 +1,6 @@
-import sproc
 import unittest
+
+import sproc
 
 
 class RunTest(unittest.TestCase):

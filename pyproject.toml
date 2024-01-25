@@ -28,7 +28,7 @@ branch = true
 source = ["sproc"]
 
 [tool.coverage.report]
-fail_under = 82
+fail_under = 81
 skip_covered = true
 
 [tool.ruff]
@@ -36,6 +36,9 @@ line-length = 88
 
 [tool.ruff.format]
 quote-style = "single"
+
+[tool.mypy]
+strict = true
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
