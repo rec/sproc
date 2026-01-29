@@ -1,28 +1,46 @@
-[tool.poetry]
+[project]
 name = "sproc"
 version = "2.4.1"
 description = "⛏ Subprocesseses for subhumanses ⛏"
-authors = ["Tom Ritchford <tom@swirly.com>"]
-license = "MIT"
+authors = [{ name = "Tom Ritchford", email = "tom@swirly.com" }]
+requires-python = ">=3.8"
 readme = "README.md"
-repository = "https://github.com/rec/sproc"
-homepage = "https://github.com/rec/sproc"
-documentation = "https://rec.github.io/sproc"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.8"
+[project.urls]
+Homepage = "https://github.com/rec/sproc"
+Repository = "https://github.com/rec/sproc"
+Documentation = "https://rec.github.io/sproc"
 
-[tool.poetry.group.dev.dependencies]
-coverage = "*"
-pytest = "*"
-mkdocs = "*"
-mypy = "*"
-ruff = "*"
-pytest-benchmark = "^4.0.0"
-readme-renderer = "*"
+[dependency-groups]
+dev = [
+    "coverage",
+    "pytest",
+    "mkdocs",
+    "mypy",
+    "ruff",
+    "pytest-benchmark>=4.0.0,<5",
+    "readme-renderer",
+]
 
+[tool.uv]
 
-[tool.coverage]
+[tool.uv.build-backend]
+module-root = ""
+
+[build-system]
+requires = ["uv_build>=0.9.0,<0.10.0"]
+build-backend = "uv_build"
 [tool.coverage.run]
 branch = true
 source = ["sproc"]
@@ -39,6 +57,3 @@ quote-style = "single"
 
 [tool.mypy]
 strict = true
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
