@@ -27,10 +27,11 @@ dev = [
     "coverage",
     "pytest",
     "mkdocs",
-    "mypy",
     "ruff",
     "pytest-benchmark>=4.0.0,<5",
     "readme-renderer",
+    "pyupgrade>=3.21.2",
+    "ty>=0.0.14",
 ]
 
 [tool.uv]
@@ -48,6 +49,7 @@ source = ["sproc"]
 [tool.coverage.report]
 fail_under = 81
 skip_covered = true
+exclude_lines = ["pragma: no cover", "if False:", "if __name__ == .__main__.:", "raise NotImplementedError"]
 
 [tool.ruff]
 line-length = 88
