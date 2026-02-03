@@ -416,7 +416,7 @@ wheels = [
 
 [[package]]
 name = "sproc"
-version = "2.4.1"
+version = "2.5.0"
 source = { editable = "." }
 
 [package.dev-dependencies]
