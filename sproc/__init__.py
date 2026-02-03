@@ -36,9 +36,10 @@ import functools
 import shlex
 import subprocess
 import typing as t
+from collections.abc import Sequence
 from queue import Queue
 from threading import Thread
-from typing import Callable, List, Mapping, Optional, Sequence, Union
+from typing import Optional, Union
 
 __all__ = 'Sub', 'call', 'call_in_thread', 'run', 'log'
 
@@ -78,7 +79,7 @@ class Sub:
         self.cmd = cmd
         self.by_lines = by_lines
         self.kwargs = dict(kwargs, **DEFAULTS)
-        self._threads: List[Thread] = []
+        self._threads: list[Thread] = []
 
         shell = kwargs.get('shell', False)
         if isinstance(cmd, str):
@@ -186,10 +187,10 @@ class Sub:
         """
         return self.call(lambda x: print(out + x), lambda x: print(err + x))
 
-    def join(self, timeout: Optional[int] = None) -> None:
+    def join(self, timeout: int | None = None) -> None:
         """Join the stream handling threads"""
-        for t in self._threads:
-            t.join(timeout)
+        for th in self._threads:
+            th.join(timeout)
 
     def kill(self) -> None:
         """Kill the running process, if any"""
