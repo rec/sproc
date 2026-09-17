@@ -71,7 +71,6 @@ class Sub:
           and so if `cmd` is a string, it is split using `shlex`.
     """
 
-    @functools.wraps(subprocess.Popen)
     def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: t.Any) -> None:
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
@@ -104,7 +103,7 @@ class Sub:
         """
         queue: Queue[t.Tuple[bool, t.Optional[str]]] = Queue()
 
-        with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
+        with subprocess.Popen(self.cmd, **t.cast(t.Any, self.kwargs)) as self.proc:
             for ok in False, True:
                 self._start_thread(ok, lambda o, s: queue.put((o, s)))
 
@@ -155,7 +154,7 @@ class Sub:
             err: If not None, `err` is called for each line from the
                 subprocess's stderr,
         """
-        with subprocess.Popen(self.cmd, **self.kwargs) as self.proc:
+        with subprocess.Popen(self.cmd, **t.cast(t.Any, self.kwargs)) as self.proc:
             callback = self._callback(out, err)
             for ok in False, True:
                 self._start_thread(ok, callback)
