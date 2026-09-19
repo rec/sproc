@@ -2,6 +2,10 @@ version = 1
 revision = 3
 requires-python = ">=3.10"
 
+[options]
+exclude-newer = "2026-09-12T13:39:54.364676Z"
+exclude-newer-span = "P1W"
+
 [[package]]
 name = "click"
 version = "8.1.7"

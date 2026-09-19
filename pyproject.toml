@@ -40,6 +40,8 @@ line-length = 88
 [tool.ruff.format]
 quote-style = "single"
 
+[tool.uv]
+exclude-newer = "P1W"
 
 [tool.poetry]
 name = "sproc"
