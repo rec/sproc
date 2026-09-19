@@ -182,6 +182,7 @@ class Sub:
             callback = self._callback(out, err)
             for ok in False, True:
                 self._start_thread(ok, callback)
+            self.join()
 
     def run(self) -> tuple[list[str], list[str], int]:
         """
@@ -237,8 +238,10 @@ class Sub:
                         else:
                             line = stream.read()
 
-                        if line and not isinstance(line, str):
-                            line = line.decode('utf8')
+                        if line:
+                            if not isinstance(line, str):
+                                line = line.decode('utf8')
+                            line = line.replace('\r\n', '\n').replace('\r', '\n')
                     except (OSError, UnicodeDecodeError) as error:
                         if self._reader_error is None:
                             self._reader_error = error

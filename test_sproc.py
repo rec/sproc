@@ -13,6 +13,8 @@ STDERR = ['err-one\n', 'err-two\n']
 CHILD = f"""\
 import sys
 
+sys.stdout.reconfigure(encoding='utf-8')
+sys.stderr.reconfigure(encoding='utf-8')
 sys.stdout.write({STDOUT[0]!r})
 sys.stdout.write({STDOUT[1]!r})
 sys.stdout.write({STDOUT[2]!r})
@@ -21,6 +23,12 @@ sys.stderr.write({STDERR[0]!r})
 sys.stderr.write({STDERR[1]!r})
 sys.stderr.flush()
 raise SystemExit({EXIT_CODE})
+"""
+CRLF_CHILD = """\
+import sys
+
+sys.stdout.buffer.write(b'one\\r\\ntwo\\r\\n')
+sys.stdout.buffer.flush()
 """
 INVALID_UTF8_CHILD = """\
 import sys
@@ -149,6 +157,13 @@ class SprocTest(unittest.TestCase):
         self.assertEqual(''.join(err), ''.join(STDERR))
         self.assertEqual(returncode, EXIT_CODE)
 
+    def test_legacy_helpers_normalize_windows_newlines(self) -> None:
+        out, err, returncode = sproc.run(command(CRLF_CHILD, shell=False))
+
+        self.assertEqual(out, ['one\n', 'two\n'])
+        self.assertEqual(err, [])
+        self.assertEqual(returncode, 0)
+
     def test_log_preserves_stream_prefixes(self) -> None:
         lines: list[str] = []
 
@@ -193,6 +208,15 @@ class SprocTest(unittest.TestCase):
                 self.assertEqual(out, [])
                 self.assertEqual(err, [])
                 self.assertEqual(sub.returncode, 0)
+
+    def test_async_helpers_drain_output_before_closing_streams(self) -> None:
+        for start in sproc.call_in_thread, sproc.call_async:
+            with self.subTest(start=start.__name__):
+                out: list[str] = []
+
+                start(command("print('output')", shell=False), out.append)
+
+                self.assertEqual(out, ['output\n'])
 
     def test_configured_decoding_handles_invalid_utf8(self) -> None:
         out, err, returncode = sproc.run(
