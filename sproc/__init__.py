@@ -37,10 +37,19 @@ import shlex
 import subprocess
 from collections.abc import Callable, Iterator, Sequence
 from queue import Queue
-from threading import Thread
-from typing import Any, Optional, Union, cast
+from threading import BoundedSemaphore, Event, Thread
+from typing import Any, Literal, Optional, Union, cast
 
-__all__ = 'ProcessStream', 'Sub', 'call', 'call_in_thread', 'log', 'run', 'start'
+__all__ = (
+    'OutputQueueFullError',
+    'ProcessStream',
+    'Sub',
+    'call',
+    'call_in_thread',
+    'log',
+    'run',
+    'start',
+)
 
 DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
 
@@ -253,6 +262,10 @@ class Sub:
             return lambda ok, line: None
 
 
+class OutputQueueFullError(RuntimeError):
+    """A bounded ProcessStream queue could not retain all output."""
+
+
 class ProcessStream:
     """One immediately-started subprocess and its output event stream.
 
@@ -261,9 +274,24 @@ class ProcessStream:
     the process. `close()` waits for the process and its reader threads.
     """
 
-    def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        cmd: Cmd,
+        *,
+        by_lines: bool = True,
+        max_queue_size: int | None = None,
+        overflow: Literal['raise'] | None = None,
+        **kwargs: Any,
+    ) -> None:
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
+        if max_queue_size is None:
+            if overflow is not None:
+                raise ValueError('overflow requires max_queue_size')
+        elif max_queue_size <= 0:
+            raise ValueError('max_queue_size must be positive')
+        elif overflow != 'raise':
+            raise ValueError("bounded queues require overflow='raise'")
 
         shell = kwargs.get('shell', False)
         if isinstance(cmd, str):
@@ -271,9 +299,17 @@ class ProcessStream:
         else:
             command = shlex.join(cmd) if shell else cmd
 
-        self._queue: Queue[tuple[bool, str | None]] = Queue()
+        self._queue: Queue[tuple[bool, str | None]] = Queue(
+            0 if max_queue_size is None else max_queue_size + 2
+        )
+        self._event_slots = (
+            None if max_queue_size is None else BoundedSemaphore(max_queue_size)
+        )
+        self._queue_full = Event()
         self._by_lines = by_lines
-        self._reader_error: UnicodeDecodeError | OSError | None = None
+        self._reader_error: (
+            UnicodeDecodeError | OSError | OutputQueueFullError | None
+        ) = None
         self._iterated = False
         self._process: subprocess.Popen[Any] = subprocess.Popen(
             command, **cast(Any, dict(kwargs, **DEFAULTS))
@@ -291,8 +327,10 @@ class ProcessStream:
         return self._process.poll() is None
 
     @property
-    def reader_error(self) -> UnicodeDecodeError | OSError | None:
-        """The first decoding or I/O error raised by a stream reader."""
+    def reader_error(
+        self,
+    ) -> UnicodeDecodeError | OSError | OutputQueueFullError | None:
+        """The first reader decoding, I/O, or bounded-queue error."""
         return self._reader_error
 
     @property
@@ -312,7 +350,12 @@ class ProcessStream:
             if line is None:
                 finished += 1
             else:
+                if self._event_slots is not None:
+                    self._event_slots.release()
                 yield is_stdout, line
+        if self._queue_full.is_set():
+            assert isinstance(self._reader_error, OutputQueueFullError)
+            raise self._reader_error
 
     def wait(self, timeout: float | None = None) -> int | None:
         """Wait for the subprocess, returning `None` when `timeout` expires."""
@@ -337,6 +380,22 @@ class ProcessStream:
                 stream.close()
         return returncode
 
+    def terminate(self) -> None:
+        """Terminate the direct process without affecting descendants."""
+        if self._process.poll() is None:
+            try:
+                self._process.terminate()
+            except ProcessLookupError:
+                pass
+
+    def kill(self) -> None:
+        """Kill the direct process without affecting descendants."""
+        if self._process.poll() is None:
+            try:
+                self._process.kill()
+            except ProcessLookupError:
+                pass
+
     def _read_stream(self, is_stdout: bool) -> None:
         stream = self._process.stdout if is_stdout else self._process.stderr
         assert stream is not None
@@ -352,7 +411,17 @@ class ProcessStream:
                     return
                 if not line:
                     return
-                self._queue.put((is_stdout, line))
+                if self._queue_full.is_set():
+                    continue
+                if self._event_slots is None or self._event_slots.acquire(
+                    blocking=False
+                ):
+                    self._queue.put((is_stdout, line))
+                else:
+                    self._reader_error = OutputQueueFullError(
+                        'ProcessStream output queue is full'
+                    )
+                    self._queue_full.set()
         finally:
             self._queue.put((is_stdout, None))
 
@@ -373,9 +442,22 @@ def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Any) ->
     return Sub(cmd, **kwargs).call(out, err)
 
 
-def start(cmd: Cmd, *, by_lines: bool = True, **kwargs: Any) -> ProcessStream:
+def start(
+    cmd: Cmd,
+    *,
+    by_lines: bool = True,
+    max_queue_size: int | None = None,
+    overflow: Literal['raise'] | None = None,
+    **kwargs: Any,
+) -> ProcessStream:
     """Start a subprocess immediately and return its output event stream."""
-    return ProcessStream(cmd, by_lines=by_lines, **kwargs)
+    return ProcessStream(
+        cmd,
+        by_lines=by_lines,
+        max_queue_size=max_queue_size,
+        overflow=overflow,
+        **kwargs,
+    )
 
 
 def call_in_thread(

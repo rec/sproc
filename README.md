@@ -54,5 +54,23 @@ before `close()`, which waits for normal completion and reader shutdown.
         print('out' if is_stdout else 'err', line, end='')
     returncode = stream.close()
 
+### Liveness controls
+
+`ProcessStream.wait(timeout)` returns `None` when the timeout expires and does
+not terminate the process. `terminate()` and `kill()` are idempotent operations
+on the direct child only; they never claim to stop shell children or other
+descendants.
+
+For a bounded output queue, pass both a size and `overflow='raise'`. Sproc
+continues draining the child after the limit so that the child can finish, then
+iteration raises `OutputQueueFullError` after yielding the output that fit.
+
+    stream = sproc.start(CMD, max_queue_size=100, overflow='raise')
+
+A child that gives stdout or stderr to a long-lived descendant can delay stream
+EOF after the direct child exits. Keep descendant output separate, for example
+by redirecting it to `subprocess.DEVNULL`; Sproc does not guess which process
+tree to terminate.
+
 
 ### [API Documentation](https://rec.github.io/sproc#sproc--api-documentation)

@@ -34,6 +34,18 @@ sys.stdout.write('ready\\n')
 sys.stdout.flush()
 time.sleep(1)
 """
+OUTPUT_CHILD = """\
+import sys
+
+for line in range(3):
+    print(line, flush=True)
+"""
+INHERITING_CHILD = """\
+import subprocess
+import sys
+
+subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(0.5)'])
+"""
 
 
 def command(script: str, *, shell: bool) -> str | list[str]:
@@ -203,4 +215,40 @@ class SprocTest(unittest.TestCase):
 
         self.assertEqual(list(stream), [])
         self.assertIsInstance(stream.reader_error, UnicodeDecodeError)
+        self.assertEqual(stream.close(), 0)
+
+    def test_start_bounded_queue_raises_after_draining_process(self) -> None:
+        stream = sproc.start(
+            command(OUTPUT_CHILD, shell=False), max_queue_size=1, overflow='raise'
+        )
+
+        self.assertEqual(stream.wait(), 0)
+        with self.assertRaises(sproc.OutputQueueFullError):
+            list(stream)
+        self.assertIsInstance(stream.reader_error, sproc.OutputQueueFullError)
+        self.assertEqual(stream.close(), 0)
+
+    def test_start_requires_explicit_bounded_queue_policy(self) -> None:
+        with self.assertRaisesRegex(ValueError, "overflow='raise'"):
+            sproc.start(command(ASYNC_CHILD, shell=False), max_queue_size=1)
+        with self.assertRaisesRegex(ValueError, 'overflow requires'):
+            sproc.start(command(ASYNC_CHILD, shell=False), overflow='raise')
+
+    def test_start_terminate_and_kill_are_idempotent(self) -> None:
+        for method in 'terminate', 'kill':
+            with self.subTest(method=method):
+                stream = sproc.start(command(RUNNING_CHILD, shell=False))
+
+                getattr(stream, method)()
+                self.assertNotEqual(stream.wait(), 0)
+                getattr(stream, method)()
+                self.assertEqual(stream.close(), stream.returncode)
+
+    def test_start_join_waits_for_inherited_output_descriptors(self) -> None:
+        stream = sproc.start(command(INHERITING_CHILD, shell=False))
+
+        self.assertEqual(stream.wait(), 0)
+        self.assertFalse(stream.join(0.01))
+        self.assertEqual(list(stream), [])
+        self.assertTrue(stream.join())
         self.assertEqual(stream.close(), 0)
