@@ -13,8 +13,9 @@ Useful for handling long-running proceesses that write to both `stdout` and
 
     CMD = 'my-unix-command "My Cool File.txt" No-file.txt'
 
-    for ok, line in sproc.Sub(CMD) as sp:
-        if ok:
+    sp = sproc.Sub(CMD)
+    for is_stdout, line in sp:
+        if is_stdout:
              print(' ', line)
         else:
              print('!', line)
@@ -39,9 +40,10 @@ import subprocess
 from collections.abc import Callable, Iterator, Sequence
 from queue import Queue
 from threading import BoundedSemaphore, Event, Thread
-from typing import Any, Literal, Optional, Union, cast
+from typing import Any, Literal, NamedTuple, Optional, Union, cast
 
 __all__ = (
+    'OutputEvent',
     'OutputQueueFullError',
     'ProcessStream',
     'Sub',
@@ -267,10 +269,18 @@ class OutputQueueFullError(RuntimeError):
     """A bounded ProcessStream queue could not retain all output."""
 
 
+class OutputEvent(NamedTuple):
+    """One ProcessStream output event."""
+
+    is_stdout: bool
+    text: str | bytes
+
+
 class ProcessStream:
     """One immediately-started subprocess and its output event stream.
 
-    Iterate once to receive `(is_stdout, text)` or `(is_stdout, bytes)` events.
+    Iterate once to receive tuple-compatible OutputEvent values. `is_stdout`
+    identifies stdout; `text` contains either str or bytes for the full stream.
     `wait()` returns the process return code, or `None` when its timeout expires
     without terminating the process. `close()` waits for the process and its
     reader threads.
@@ -314,7 +324,7 @@ class ProcessStream:
         else:
             command = shlex.join(cmd) if shell else cmd
 
-        self._queue: Queue[tuple[bool, str | bytes | None]] = Queue(
+        self._queue: Queue[OutputEvent | None] = Queue(
             0 if max_queue_size is None else max_queue_size + 2
         )
         self._event_slots = (
@@ -356,7 +366,7 @@ class ProcessStream:
         """The subprocess return code, or `None` while it is still running."""
         return self._process.poll()
 
-    def __iter__(self) -> Iterator[tuple[bool, str | bytes]]:
+    def __iter__(self) -> Iterator[OutputEvent]:
         """Yield output events once, until both output streams close."""
         if self._iterated:
             raise RuntimeError('ProcessStream output can be iterated only once')
@@ -364,13 +374,13 @@ class ProcessStream:
 
         finished = 0
         while finished < 2:
-            is_stdout, line = self._queue.get()
-            if line is None:
+            event = self._queue.get()
+            if event is None:
                 finished += 1
             else:
                 if self._event_slots is not None:
                     self._event_slots.release()
-                yield is_stdout, line
+                yield event
         if self._queue_full.is_set():
             assert isinstance(self._reader_error, OutputQueueFullError)
             raise self._reader_error
@@ -443,13 +453,13 @@ class ProcessStream:
                 if line:
                     self._put_event(is_stdout, line)
         finally:
-            self._queue.put((is_stdout, None))
+            self._queue.put(None)
 
     def _put_event(self, is_stdout: bool, line: str | bytes) -> None:
         if self._queue_full.is_set():
             return
         if self._event_slots is None or self._event_slots.acquire(blocking=False):
-            self._queue.put((is_stdout, line))
+            self._queue.put(OutputEvent(is_stdout, line))
         else:
             self._reader_error = OutputQueueFullError(
                 'ProcessStream output queue is full'

@@ -38,21 +38,32 @@ that invocation is still active, and `reader_error` exposes the first reader
 I/O or UTF-8 decoding error. Existing callbacks and return values are unchanged;
 callback exceptions retain their existing thread behavior.
 
-`call_in_thread` and its deprecated alias `call_async` currently wait for the
-subprocess before returning, despite their names. A separate nonblocking API is
-planned. Output ordering between `stdout` and `stderr` is unspecified.
+`call_in_thread` and its compatibility alias `call_async` currently wait for
+the subprocess before returning, despite their names. Output ordering between
+`stdout` and `stderr` is unspecified.
 
 ### Nonblocking output stream
 
-`start()` is the opt-in nonblocking API. It starts the process immediately and
-yields `(is_stdout, text)` events while it runs. `wait(timeout)` returns `None`
-when the timeout expires without terminating the process. Consume the events
-before `close()`, which waits for normal completion and reader shutdown.
+`start()` is the preferred nonblocking API. It starts the process immediately
+and yields tuple-compatible `OutputEvent` values while it runs. `is_stdout`
+identifies stdout rather than success, and `text` is the output value.
+`wait(timeout)` returns `None` when the timeout expires without terminating the
+process. Consume the events before `close()`, which waits for normal completion
+and reader shutdown.
 
     stream = sproc.start(CMD)
-    for is_stdout, line in stream:
-        print('out' if is_stdout else 'err', line, end='')
+    for event in stream:
+        print('out' if event.is_stdout else 'err', event.text, end='')
     returncode = stream.close()
+
+The events remain unpackable for callers that prefer `is_stdout, text = event`.
+
+### Compatibility timeline
+
+`call_in_thread()` and `call_async()` remain supported compatibility APIs with
+no planned removal version. This release emits no warning for either. A future
+minor release may add a migration warning after users have had time to adopt
+`ProcessStream`.
 
 ### Liveness controls
 

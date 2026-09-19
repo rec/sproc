@@ -215,6 +215,15 @@ class SprocTest(unittest.TestCase):
         self.assertTrue(stream.join())
         self.assertEqual(stream.close(), 0)
 
+    def test_start_events_are_tuple_compatible_and_named(self) -> None:
+        stream = sproc.start(command("print('event')", shell=False))
+
+        event = next(iter(stream))
+        self.assertEqual(event, (True, 'event\n'))
+        self.assertTrue(event.is_stdout)
+        self.assertEqual(event.text, 'event\n')
+        self.assertEqual(stream.close(), 0)
+
     def test_start_keeps_concurrent_processes_separate(self) -> None:
         first = sproc.start(command("print('first')", shell=False))
         second = sproc.start(command("print('second')", shell=False))
