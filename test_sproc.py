@@ -8,15 +8,18 @@ from tempfile import TemporaryDirectory
 import sproc
 
 EXIT_CODE = 7
-STDOUT = ['out-one\n', 'out-two\n', 'café\n']
+STDOUT = ['out-one\n', 'out-two\n', 'cafe\n']
 STDERR = ['err-one\n', 'err-two\n']
 CHILD = f"""\
 import sys
 
-sys.stdout.buffer.write({''.join(STDOUT).encode()!r})
-sys.stdout.buffer.flush()
-sys.stderr.buffer.write({''.join(STDERR).encode()!r})
-sys.stderr.buffer.flush()
+sys.stdout.write({STDOUT[0]!r})
+sys.stdout.write({STDOUT[1]!r})
+sys.stdout.write({STDOUT[2]!r})
+sys.stdout.flush()
+sys.stderr.write({STDERR[0]!r})
+sys.stderr.write({STDERR[1]!r})
+sys.stderr.flush()
 raise SystemExit({EXIT_CODE})
 """
 CRLF_CHILD = """\
