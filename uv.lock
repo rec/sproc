@@ -3,7 +3,7 @@ revision = 3
 requires-python = ">=3.10"
 
 [options]
-exclude-newer = "2026-09-12T14:31:16.698442Z"
+exclude-newer = "2026-09-12T14:41:37.572086Z"
 exclude-newer-span = "P1W"
 
 [[package]]
@@ -420,7 +420,7 @@ wheels = [
 
 [[package]]
 name = "sproc"
-version = "3.0.3"
+version = "3.0.4"
 source = { editable = "." }
 
 [package.dev-dependencies]
