@@ -35,17 +35,16 @@ Useful for handling long-running proceesses that write to both `stdout` and
 import functools
 import shlex
 import subprocess
-import typing as t
-from collections.abc import Sequence
+from collections.abc import Callable, Iterator, Sequence
 from queue import Queue
 from threading import Thread
-from typing import Optional, Union
+from typing import Any, Optional, Union, cast
 
 __all__ = 'Sub', 'call', 'call_in_thread', 'run', 'log'
 
 DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
 
-Callback = Optional[t.Callable[..., t.Any]]
+Callback = Optional[Callable[..., Any]]
 Cmd = Union[str, Sequence[str]]
 
 
@@ -71,7 +70,7 @@ class Sub:
           and so if `cmd` is a string, it is split using `shlex`.
     """
 
-    def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: t.Any) -> None:
+    def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: Any) -> None:
         if 'stdout' in kwargs or 'stderr' in kwargs:
             raise ValueError('Cannot set stdout or stderr')
 
@@ -92,7 +91,7 @@ class Sub:
     def returncode(self) -> int:
         return self.proc.returncode if self.proc else 0
 
-    def __iter__(self) -> t.Iterator[t.Tuple[bool, str]]:
+    def __iter__(self) -> Iterator[tuple[bool, str]]:
         """
         Yields a sequence of `ok, line` pairs from `stdout` and `stderr` of
         a subprocess, where `ok` is `True` if `line` came from `stdout`
@@ -101,9 +100,9 @@ class Sub:
         After iteration is done, the `.returncode` property contains
         the error code from the subprocess, an integer where 0 means no error.
         """
-        queue: Queue[t.Tuple[bool, t.Optional[str]]] = Queue()
+        queue: Queue[tuple[bool, str | None]] = Queue()
 
-        with subprocess.Popen(self.cmd, **t.cast(t.Any, self.kwargs)) as self.proc:
+        with subprocess.Popen(self.cmd, **cast(Any, self.kwargs)) as self.proc:
             for ok in False, True:
                 self._start_thread(ok, lambda o, s: queue.put((o, s)))
 
@@ -154,24 +153,24 @@ class Sub:
             err: If not None, `err` is called for each line from the
                 subprocess's stderr,
         """
-        with subprocess.Popen(self.cmd, **t.cast(t.Any, self.kwargs)) as self.proc:
+        with subprocess.Popen(self.cmd, **cast(Any, self.kwargs)) as self.proc:
             callback = self._callback(out, err)
             for ok in False, True:
                 self._start_thread(ok, callback)
 
-    def run(self) -> t.Tuple[t.List[str], t.List[str], int]:
+    def run(self) -> tuple[list[str], list[str], int]:
         """
         Reads lines from `stdout` and `stderr` into two lists `out` and `err`,
         then returns a tuple `(out, err, returncode)`
         """
-        out: t.List[str] = []
-        err: t.List[str] = []
+        out: list[str] = []
+        err: list[str] = []
 
         self.call(out.append, err.append)
         return out, err, self.returncode
 
     def log(
-        self, out: str = '  ', err: str = '! ', print: t.Callable[..., None] = print
+        self, out: str = '  ', err: str = '! ', print: Callable[..., None] = print
     ) -> int:
         """
         Read lines from `stdin` and `stderr` and prints them with prefixes
@@ -197,7 +196,7 @@ class Sub:
             self.proc.kill()
 
     def _start_thread(
-        self, ok: bool, callback: t.Callable[[bool, t.Optional[str]], None]
+        self, ok: bool, callback: Callable[[bool, str | None], None]
     ) -> None:
         def read_stream() -> None:
             try:
@@ -222,10 +221,8 @@ class Sub:
         self._threads.append(th)
 
     def _callback(
-        self,
-        out: t.Optional[t.Callable[..., t.Any]],
-        err: t.Optional[t.Callable[..., t.Any]],
-    ) -> t.Callable[[bool, t.Optional[str]], t.Any]:
+        self, out: Callable[..., Any] | None, err: Callable[..., Any] | None
+    ) -> Callable[[bool, str | None], Any]:
         if out and err:
             return lambda ok, line: line and (out(line) if ok else err(line))
         if out:
@@ -236,7 +233,7 @@ class Sub:
             return lambda ok, line: None
 
 
-def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: t.Any) -> int:
+def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Any) -> int:
     """
     Args:
       cmd:  The command to run in a subprocess
@@ -253,7 +250,7 @@ def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: t.Any) 
 
 
 def call_in_thread(
-    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: t.Any
+    cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Any
 ) -> None:
     """
     Args:
@@ -274,7 +271,7 @@ call_async = call_in_thread
 
 
 @functools.wraps(Sub.__init__)
-def run(cmd: Cmd, **kwargs: t.Any) -> t.Tuple[t.List[str], t.List[str], int]:
+def run(cmd: Cmd, **kwargs: Any) -> tuple[list[str], list[str], int]:
     return Sub(cmd, **kwargs).run()
 
 
@@ -282,8 +279,8 @@ def log(
     cmd: Cmd,
     out: str = '  ',
     err: str = '! ',
-    print: t.Callable[..., None] = print,
-    **kwargs: t.Any,
+    print: Callable[..., None] = print,
+    **kwargs: Any,
 ) -> int:
     """
     Args:
