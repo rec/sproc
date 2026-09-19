@@ -77,6 +77,8 @@ class Sub:
         self.cmd = cmd
         self.by_lines = by_lines
         self.kwargs = dict(kwargs, **DEFAULTS)
+        self.proc: subprocess.Popen[Any] | None = None
+        self._reader_error: UnicodeDecodeError | OSError | None = None
         self._threads: list[Thread] = []
 
         shell = kwargs.get('shell', False)
@@ -90,6 +92,16 @@ class Sub:
     @property
     def returncode(self) -> int:
         return self.proc.returncode if self.proc else 0
+
+    @property
+    def is_running(self) -> bool:
+        """Whether the current subprocess has started and has not exited."""
+        return self.proc is not None and self.proc.poll() is None
+
+    @property
+    def reader_error(self) -> UnicodeDecodeError | OSError | None:
+        """The first decoding or I/O error raised by a stream reader."""
+        return self._reader_error
 
     def __iter__(self) -> Iterator[tuple[bool, str]]:
         """
@@ -136,15 +148,16 @@ class Sub:
         return self.returncode
 
     def call_async(self, out: Callback = None, err: Callback = None) -> None:
-        # DEPRECATED: now called "call_in_thread"
+        """Deprecated alias for the currently blocking `call_in_thread()`."""
         return self.call_in_thread(out, err)
 
     def call_in_thread(self, out: Callback = None, err: Callback = None) -> None:
         """
-        Run the subprocess, and asynchronously call function `out` with lines
-        from `stdout`, and function `err` with lines from `stderr`.
+        Run the subprocess and call function `out` with lines from `stdout`,
+        and function `err` with lines from `stderr`.
 
-        Does not block - immediately returns.
+        Despite its historical name, this method waits for the subprocess before
+        returning. A nonblocking replacement will be introduced separately.
 
         Args:
             out: If not None, `out` is called for each line from the
@@ -173,7 +186,7 @@ class Sub:
         self, out: str = '  ', err: str = '! ', print: Callable[..., None] = print
     ) -> int:
         """
-        Read lines from `stdin` and `stderr` and prints them with prefixes
+        Read lines from `stdout` and `stderr` and prints them with prefixes
 
         Returns the shell integer error code from the subprocess, where 0 means
         no error.
@@ -199,19 +212,26 @@ class Sub:
         self, ok: bool, callback: Callable[[bool, str | None], None]
     ) -> None:
         def read_stream() -> None:
+            proc = self.proc
+            assert proc is not None
             try:
-                stream = self.proc.stdout if ok else self.proc.stderr
+                stream = proc.stdout if ok else proc.stderr
                 assert stream is not None
                 line = '.'
-                while line or self.proc.poll() is None:
-                    if self.by_lines:
-                        line = stream.readline()
-                    else:
-                        line = stream.read()
+                while line or proc.poll() is None:
+                    try:
+                        if self.by_lines:
+                            line = stream.readline()
+                        else:
+                            line = stream.read()
 
-                    if line:
-                        if not isinstance(line, str):
+                        if line and not isinstance(line, str):
                             line = line.decode('utf8')
+                    except (OSError, UnicodeDecodeError) as error:
+                        if self._reader_error is None:
+                            self._reader_error = error
+                        return
+                    if line:
                         callback(ok, line)
             finally:
                 callback(ok, None)

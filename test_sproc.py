@@ -26,6 +26,14 @@ sys.stdout.buffer.write(b'\\xff\\n')
 sys.stdout.buffer.flush()
 """
 ASYNC_CHILD = 'pass'
+RUNNING_CHILD = """\
+import sys
+import time
+
+sys.stdout.write('ready\\n')
+sys.stdout.flush()
+time.sleep(1)
+"""
 
 
 def command(script: str, *, shell: bool) -> str | list[str]:
@@ -144,3 +152,24 @@ class SprocTest(unittest.TestCase):
         self.assertEqual(out, ['�\n'])
         self.assertEqual(err, [])
         self.assertEqual(returncode, 0)
+
+    def test_reader_error_records_invalid_utf8(self) -> None:
+        sub = sproc.Sub(command(INVALID_UTF8_CHILD, shell=False))
+
+        self.assertEqual(list(sub), [])
+        self.assertIsInstance(sub.reader_error, UnicodeDecodeError)
+        self.assertEqual(sub.returncode, 0)
+
+    def test_lifecycle_properties_before_during_and_after_running(self) -> None:
+        sub = sproc.Sub(command(RUNNING_CHILD, shell=False))
+
+        self.assertFalse(sub.is_running)
+        self.assertIsNone(sub.reader_error)
+        sub.kill()
+
+        iterator = iter(sub)
+        self.assertEqual(next(iterator), (True, 'ready\n'))
+        self.assertTrue(sub.is_running)
+        self.assertEqual(list(iterator), [])
+        self.assertFalse(sub.is_running)
+        self.assertEqual(sub.returncode, 0)
