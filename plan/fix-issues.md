@@ -27,6 +27,9 @@ Document every behavior preserved intentionally, including behavior that will
 eventually be deprecated. A behavior change requires a release note, a focused
 regression test, and an explicit versioning decision.
 
+Because testing on Windows and Linux costs human time and money, we will defer
+compatibility until the very last step.
+
 ## Phase 0: establish the compatibility baseline
 
 Before changing implementation behavior, expand the test suite around the
@@ -42,8 +45,7 @@ currently supported surface.
    callback argument count, stdout/stderr separation, and return codes. Do not
    assert relative ordering between streams unless an ordering contract is
    adopted.
-4. Run this suite on supported Python versions and at least Linux, macOS, and
-   Windows. Use a UTF-8 locale and a non-UTF-8 or invalid-byte fixture where the
+4. Run this suite on Python 3.10.x. Use a UTF-8 locale and a non-UTF-8 or invalid-byte fixture where the
    platform can produce one.
 5. Add a documented support matrix: Python versions, operating systems, shells,
    and whether byte output is supported.
@@ -111,7 +113,8 @@ not adopt by default.
    and post-exit behavior. Do not claim that they kill descendants.
 3. Consider process-tree control only as an explicitly selected policy. On
    POSIX that may require a new process group; on Windows it requires a tested
-   platform-specific approach. Never silently change the old process-group
+   platform-specific approach, and though this will be deferred to the last step,
+   we should take it into account. Never silently change the old process-group
    behavior.
 4. Offer a bounded queue only with an explicit size and overflow policy. Test
    block, fail, and drop policies separately. Retain the old unbounded queue for
@@ -136,21 +139,7 @@ configuration path on the new API.
 4. Publish migration examples for callers that need locale decoding, replacement
    decoding, or raw bytes.
 
-## Phase 5: platform support and command semantics
-
-1. Test every public helper on Linux, macOS, and Windows using only Python child
-   commands. Remove assertions about shell error wording and Unix command names.
-2. Document the distinction between a string command, a sequence command, and
-   `shell=True`. Do not promise that POSIX `shlex` quoting describes Windows
-   `cmd.exe` or PowerShell.
-3. On Windows, test quoting, paths containing spaces, console-window behavior,
-   handle inheritance, direct termination, and shell children. On POSIX, test
-   signals, process groups, and descriptor inheritance.
-4. Keep the existing command normalization for legacy APIs. If platform-native
-   command construction is needed, provide a new explicit API rather than
-   changing legacy string parsing.
-
-## Phase 6: naming, deprecation, and major-release decisions
+## Phase 5: naming, deprecation, and major-release decisions
 
 1. Improve documentation before renaming public symbols. Explain `ok` as
    "is stdout" everywhere it appears.
@@ -165,6 +154,21 @@ configuration path on the new API.
    `returncode`, default decoding, chunk delivery, cancellation, and queue
    bounds for a major release. Each requires a migration guide and compatibility
    test comparison.
+
+## Phase 6: platform support and command semantics
+
+0. Port code so that it works on Linux and Windows.
+1. Test every public helper on Linux, macOS, and Windows using only Python child
+   commands. Remove assertions about shell error wording and Unix command names.
+2. Document the distinction between a string command, a sequence command, and
+   `shell=True`. Do not promise that POSIX `shlex` quoting describes Windows
+   `cmd.exe` or PowerShell.
+3. On Windows, test quoting, paths containing spaces, console-window behavior,
+   handle inheritance, direct termination, and shell children. On POSIX, test
+   signals, process groups, and descriptor inheritance.
+4. Keep the existing command normalization for legacy APIs. If platform-native
+   command construction is needed, provide a new explicit API rather than
+   changing legacy string parsing.
 
 ## Release gates
 
