@@ -1,85 +1,146 @@
+import shlex
+import sys
 import unittest
 
 import sproc
 
+EXIT_CODE = 7
+STDOUT = ['out-one\n', 'out-two\n', 'café\n']
+STDERR = ['err-one\n', 'err-two\n']
+CHILD = f"""\
+import sys
 
-class RunTest(unittest.TestCase):
-    def setUp(self):
-        self.lines = []
+sys.stdout.write({STDOUT[0]!r})
+sys.stdout.write({STDOUT[1]!r})
+sys.stdout.write({STDOUT[2]!r})
+sys.stdout.flush()
+sys.stderr.write({STDERR[0]!r})
+sys.stderr.write({STDERR[1]!r})
+sys.stderr.flush()
+raise SystemExit({EXIT_CODE})
+"""
+INVALID_UTF8_CHILD = """\
+import sys
 
-    def sub(self, cmd, **kwds):
-        return sproc.call(cmd, self.lines.append, self.lines.append, **kwds)
+sys.stdout.buffer.write(b'\\xff\\n')
+sys.stdout.buffer.flush()
+"""
+ASYNC_CHILD = 'pass'
 
-    def test_simple(self):
+
+def command(script: str, *, shell: bool) -> str | list[str]:
+    parts = [sys.executable, '-c', script]
+    if shell:
+        return shlex.join(parts)
+    return parts
+
+
+def string_command(script: str) -> str:
+    return shlex.join([sys.executable, '-c', script])
+
+
+class SprocTest(unittest.TestCase):
+    def assert_output(self, out: list[str], err: list[str]) -> None:
+        self.assertEqual(out, STDOUT)
+        self.assertEqual(err, STDERR)
+
+    def test_iteration_separates_streams(self) -> None:
         for shell in False, True:
-            self.lines.clear()
-            error = self.sub('ls', shell=shell)
+            with self.subTest(shell=shell):
+                events = list(sproc.Sub(command(CHILD, shell=shell), shell=shell))
+                out = [line for ok, line in events if ok]
+                err = [line for ok, line in events if not ok]
 
-            assert error == 0
-            assert 'sproc\n' in self.lines
-            assert len(self.lines) >= 10
+                self.assert_output(out, err)
 
-    def test_simple_by_chunks(self):
+    def test_string_and_sequence_commands(self) -> None:
+        for value in string_command(CHILD), command(CHILD, shell=False):
+            with self.subTest(command_type=type(value)):
+                out, err, returncode = sproc.run(value)
+
+                self.assert_output(out, err)
+                self.assertEqual(returncode, EXIT_CODE)
+
+    def test_call_passes_one_line_to_each_callback(self) -> None:
         for shell in False, True:
-            self.lines.clear()
-            error = self.sub('ls', shell=shell, by_lines=False)
+            with self.subTest(shell=shell):
+                out: list[str] = []
+                err: list[str] = []
 
-            assert error == 0
-            lines = ''.join(self.lines).splitlines()
-            assert 'sproc' in lines
-            assert len(lines) >= 10
+                returncode = sproc.call(
+                    command(CHILD, shell=shell), out.append, err.append, shell=shell
+                )
 
-    def test_error(self):
+                self.assert_output(out, err)
+                self.assertEqual(returncode, EXIT_CODE)
+
+    def test_run_preserves_text_and_returncode(self) -> None:
         for shell in False, True:
-            self.lines.clear()
-            error = self.sub('ls foo pyproject.toml bar', shell=shell)
+            with self.subTest(shell=shell):
+                out, err, returncode = sproc.run(
+                    command(CHILD, shell=shell), shell=shell
+                )
 
-            assert error
-            assert 'pyproject.toml\n' in self.lines
+                self.assert_output(out, err)
+                self.assertEqual(returncode, EXIT_CODE)
 
-            for _ in 'foo', 'bar':
-                assert sum(i.endswith(_NO_SUCH) for i in self.lines) == 2
+    def test_chunk_mode_preserves_stream_text(self) -> None:
+        out, err, returncode = sproc.run(command(CHILD, shell=False), by_lines=False)
 
-    def test_log(self):
-        cmd = 'ls foo pyproject.toml bar'
-        for shell in False, True:
-            self.lines.clear()
-            error = sproc.log(cmd, shell=shell, print=self.lines.append)
+        self.assertEqual(''.join(out), ''.join(STDOUT))
+        self.assertEqual(''.join(err), ''.join(STDERR))
+        self.assertEqual(returncode, EXIT_CODE)
 
-            assert error
-            assert len(self.lines) == 3
-            assert '  pyproject.toml\n' in self.lines
+    def test_log_preserves_stream_prefixes(self) -> None:
+        lines: list[str] = []
 
-            for f in 'foo', 'bar':
-                assert sum(f in i for i in self.lines) == 1
+        returncode = sproc.log(
+            command(CHILD, shell=False), out='out: ', err='err: ', print=lines.append
+        )
 
-            assert sum(i.startswith('! ') for i in self.lines) == 2
+        self.assertCountEqual(
+            lines,
+            [
+                *(f'out: {line}' for line in STDOUT),
+                *(f'err: {line}' for line in STDERR),
+            ],
+        )
+        self.assertEqual(returncode, EXIT_CODE)
 
-    def test_run(self):
-        cmd = 'ls foo pyproject.toml bar'
-        for shell in False, True:
-            out, err, error_code = sproc.run(cmd, shell=shell)
+    def test_async_helpers_return_none(self) -> None:
+        for start in sproc.call_in_thread, sproc.call_async:
+            with self.subTest(start=start.__name__):
+                out: list[str] = []
+                err: list[str] = []
 
-            assert len(err) == 2
-            assert error_code
-            assert 'pyproject.toml\n' in out
+                result = start(
+                    command(ASYNC_CHILD, shell=False), out.append, err.append
+                )
 
-            for f in 'bar', 'foo':
-                assert sum(f in i for i in err) == 1
+                self.assertIsNone(result)
+                self.assertEqual(out, [])
+                self.assertEqual(err, [])
 
-            assert all(i.endswith(_NO_SUCH) for i in err)
+    def test_sub_async_helpers_join_reader_threads(self) -> None:
+        for method in 'call_in_thread', 'call_async':
+            with self.subTest(method=method):
+                out: list[str] = []
+                err: list[str] = []
+                sub = sproc.Sub(command(ASYNC_CHILD, shell=False))
 
-    def test_async(self):
-        for shell in False, True:
-            lines, errors = [], []
-            sub = sproc.Sub('ls pyproject.toml MISSING', shell=shell)
-            sub.call_async(lines.append, errors.append)
-            sub.join()
-            assert sub.returncode != 0
+                result = getattr(sub, method)(out.append, err.append)
+                sub.join()
 
-            assert 'pyproject.toml\n' in lines
-            assert len(lines) == 1
-            assert len(errors) == 1
+                self.assertIsNone(result)
+                self.assertEqual(out, [])
+                self.assertEqual(err, [])
+                self.assertEqual(sub.returncode, 0)
 
+    def test_configured_decoding_handles_invalid_utf8(self) -> None:
+        out, err, returncode = sproc.run(
+            command(INVALID_UTF8_CHILD, shell=False), encoding='utf-8', errors='replace'
+        )
 
-_NO_SUCH = 'No such file or directory\n'
+        self.assertEqual(out, ['�\n'])
+        self.assertEqual(err, [])
+        self.assertEqual(returncode, 0)
