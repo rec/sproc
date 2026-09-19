@@ -1,6 +1,9 @@
 import shlex
+import subprocess
 import sys
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import sproc
 
@@ -65,8 +68,14 @@ subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(0.5)'])
 def command(script: str, *, shell: bool) -> str | list[str]:
     parts = [sys.executable, '-c', script]
     if shell:
-        return shlex.join(parts)
+        return shell_command(parts)
     return parts
+
+
+def shell_command(parts: list[str]) -> str:
+    if sys.platform == 'win32':
+        return subprocess.list2cmdline(parts)
+    return shlex.join(parts)
 
 
 def string_command(script: str) -> str:
@@ -94,6 +103,21 @@ class SprocTest(unittest.TestCase):
 
                 self.assert_output(out, err)
                 self.assertEqual(returncode, EXIT_CODE)
+
+    def test_platform_shell_runs_a_path_with_spaces(self) -> None:
+        with TemporaryDirectory(prefix='sproc path ') as directory:
+            child = Path(directory) / 'child script.py'
+            child.write_text("print('spaced path')\n")
+            parts = [sys.executable, str(child)]
+
+            for shell in False, True:
+                with self.subTest(shell=shell):
+                    value = shell_command(parts) if shell else parts
+                    out, err, returncode = sproc.run(value, shell=shell)
+
+                    self.assertEqual(out, ['spaced path\n'])
+                    self.assertEqual(err, [])
+                    self.assertEqual(returncode, 0)
 
     def test_call_passes_one_line_to_each_callback(self) -> None:
         for shell in False, True:

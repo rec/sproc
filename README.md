@@ -65,6 +65,17 @@ no planned removal version. This release emits no warning for either. A future
 minor release may add a migration warning after users have had time to adopt
 `ProcessStream`.
 
+### Command semantics
+
+For compatibility, a string command with `shell=False` uses POSIX `shlex`
+splitting, including on Windows. A sequence command with `shell=False` is
+passed directly to `Popen`. With `shell=True`, a string is passed to the
+platform shell unchanged; callers must use the quoting rules of that shell.
+Sequence commands with `shell=True` retain their legacy POSIX `shlex` joining.
+
+Use sequence commands when portability matters. Sproc does not promise that a
+POSIX-quoted string works in `cmd.exe` or PowerShell.
+
 ### Liveness controls
 
 `ProcessStream.wait(timeout)` returns `None` when the timeout expires and does
