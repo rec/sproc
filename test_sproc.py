@@ -40,6 +40,20 @@ import sys
 for line in range(3):
     print(line, flush=True)
 """
+LATIN_1_CHILD = """\
+import sys
+
+sys.stdout.buffer.write(b'caf\\xe9\\n')
+sys.stdout.buffer.flush()
+"""
+CHUNK_CHILD = """\
+import sys
+import time
+
+sys.stdout.buffer.write(b'abcdef')
+sys.stdout.buffer.flush()
+time.sleep(1)
+"""
 INHERITING_CHILD = """\
 import subprocess
 import sys
@@ -216,6 +230,52 @@ class SprocTest(unittest.TestCase):
         self.assertEqual(list(stream), [])
         self.assertIsInstance(stream.reader_error, UnicodeDecodeError)
         self.assertEqual(stream.close(), 0)
+
+    def test_start_decodes_configured_text(self) -> None:
+        stream = sproc.start(command(LATIN_1_CHILD, shell=False), encoding='latin-1')
+
+        self.assertEqual(list(stream), [(True, 'café\n')])
+        self.assertIsNone(stream.reader_error)
+        self.assertEqual(stream.close(), 0)
+
+    def test_start_replaces_invalid_text(self) -> None:
+        stream = sproc.start(
+            command(INVALID_UTF8_CHILD, shell=False), encoding='utf-8', errors='replace'
+        )
+
+        self.assertEqual(list(stream), [(True, '�\n')])
+        self.assertEqual(stream.close(), 0)
+
+    def test_start_returns_binary_events(self) -> None:
+        stream = sproc.start(command(INVALID_UTF8_CHILD, shell=False), encoding=None)
+
+        self.assertEqual(list(stream), [(True, b'\xff\n')])
+        self.assertIsNone(stream.reader_error)
+        self.assertEqual(stream.close(), 0)
+
+    def test_start_chunk_mode_delivers_before_process_exit(self) -> None:
+        stream = sproc.start(
+            command(CHUNK_CHILD, shell=False),
+            by_lines=False,
+            chunk_size=2,
+            encoding=None,
+        )
+
+        events = iter(stream)
+        self.assertEqual(next(events), (True, b'ab'))
+        self.assertTrue(stream.is_running)
+        self.assertEqual(list(events), [(True, b'cd'), (True, b'ef')])
+        self.assertEqual(stream.close(), 0)
+
+    def test_start_validates_chunk_mode(self) -> None:
+        with self.assertRaisesRegex(ValueError, 'positive chunk_size'):
+            sproc.start(command(ASYNC_CHILD, shell=False), by_lines=False)
+        with self.assertRaisesRegex(ValueError, 'requires by_lines=False'):
+            sproc.start(command(ASYNC_CHILD, shell=False), chunk_size=1)
+
+    def test_start_validates_text_encoding_before_launch(self) -> None:
+        with self.assertRaises(LookupError):
+            sproc.start(command(ASYNC_CHILD, shell=False), encoding='not-an-encoding')
 
     def test_start_bounded_queue_raises_after_draining_process(self) -> None:
         stream = sproc.start(

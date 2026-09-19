@@ -32,6 +32,7 @@ Useful for handling long-running proceesses that write to both `stdout` and
     returncode = sproc.log(CMD)
 """
 
+import codecs
 import functools
 import shlex
 import subprocess
@@ -269,9 +270,10 @@ class OutputQueueFullError(RuntimeError):
 class ProcessStream:
     """One immediately-started subprocess and its output event stream.
 
-    Iterate once to receive `(is_stdout, text)` events. `wait()` returns the
-    process return code, or `None` when its timeout expires without terminating
-    the process. `close()` waits for the process and its reader threads.
+    Iterate once to receive `(is_stdout, text)` or `(is_stdout, bytes)` events.
+    `wait()` returns the process return code, or `None` when its timeout expires
+    without terminating the process. `close()` waits for the process and its
+    reader threads.
     """
 
     def __init__(
@@ -279,12 +281,23 @@ class ProcessStream:
         cmd: Cmd,
         *,
         by_lines: bool = True,
+        chunk_size: int | None = None,
+        encoding: str | None = 'utf8',
+        errors: str = 'strict',
         max_queue_size: int | None = None,
         overflow: Literal['raise'] | None = None,
         **kwargs: Any,
     ) -> None:
-        if 'stdout' in kwargs or 'stderr' in kwargs:
-            raise ValueError('Cannot set stdout or stderr')
+        if any(
+            name in kwargs
+            for name in ('stderr', 'stdout', 'text', 'universal_newlines')
+        ):
+            raise ValueError('Cannot set stdout, stderr, text, or universal_newlines')
+        if by_lines:
+            if chunk_size is not None:
+                raise ValueError('chunk_size requires by_lines=False')
+        elif chunk_size is None or chunk_size <= 0:
+            raise ValueError('chunk mode requires a positive chunk_size')
         if max_queue_size is None:
             if overflow is not None:
                 raise ValueError('overflow requires max_queue_size')
@@ -292,6 +305,8 @@ class ProcessStream:
             raise ValueError('max_queue_size must be positive')
         elif overflow != 'raise':
             raise ValueError("bounded queues require overflow='raise'")
+        if encoding is not None:
+            codecs.getincrementaldecoder(encoding)(errors)
 
         shell = kwargs.get('shell', False)
         if isinstance(cmd, str):
@@ -299,7 +314,7 @@ class ProcessStream:
         else:
             command = shlex.join(cmd) if shell else cmd
 
-        self._queue: Queue[tuple[bool, str | None]] = Queue(
+        self._queue: Queue[tuple[bool, str | bytes | None]] = Queue(
             0 if max_queue_size is None else max_queue_size + 2
         )
         self._event_slots = (
@@ -307,8 +322,11 @@ class ProcessStream:
         )
         self._queue_full = Event()
         self._by_lines = by_lines
+        self._chunk_size = chunk_size
+        self._encoding = encoding
+        self._errors = errors
         self._reader_error: (
-            UnicodeDecodeError | OSError | OutputQueueFullError | None
+            LookupError | UnicodeDecodeError | OSError | OutputQueueFullError | None
         ) = None
         self._iterated = False
         self._process: subprocess.Popen[Any] = subprocess.Popen(
@@ -329,8 +347,8 @@ class ProcessStream:
     @property
     def reader_error(
         self,
-    ) -> UnicodeDecodeError | OSError | OutputQueueFullError | None:
-        """The first reader decoding, I/O, or bounded-queue error."""
+    ) -> LookupError | UnicodeDecodeError | OSError | OutputQueueFullError | None:
+        """The first reader codec, I/O, or bounded-queue error."""
         return self._reader_error
 
     @property
@@ -338,7 +356,7 @@ class ProcessStream:
         """The subprocess return code, or `None` while it is still running."""
         return self._process.poll()
 
-    def __iter__(self) -> Iterator[tuple[bool, str]]:
+    def __iter__(self) -> Iterator[tuple[bool, str | bytes]]:
         """Yield output events once, until both output streams close."""
         if self._iterated:
             raise RuntimeError('ProcessStream output can be iterated only once')
@@ -399,31 +417,44 @@ class ProcessStream:
     def _read_stream(self, is_stdout: bool) -> None:
         stream = self._process.stdout if is_stdout else self._process.stderr
         assert stream is not None
+        decoder = None
+        if self._encoding is not None:
+            decoder = codecs.getincrementaldecoder(self._encoding)(self._errors)
         try:
             while True:
                 try:
-                    line = stream.readline() if self._by_lines else stream.read()
-                    if line and not isinstance(line, str):
-                        line = line.decode('utf8')
-                except (OSError, UnicodeDecodeError) as error:
+                    if self._by_lines:
+                        line = stream.readline()
+                    else:
+                        assert self._chunk_size is not None
+                        line = getattr(stream, 'read1', stream.read)(self._chunk_size)
+                    if not line:
+                        if decoder is not None and (
+                            text := decoder.decode(b'', final=True)
+                        ):
+                            self._put_event(is_stdout, text)
+                        return
+                    if decoder is not None:
+                        line = decoder.decode(line)
+                except (LookupError, OSError, UnicodeDecodeError) as error:
                     if self._reader_error is None:
                         self._reader_error = error
                     return
-                if not line:
-                    return
-                if self._queue_full.is_set():
-                    continue
-                if self._event_slots is None or self._event_slots.acquire(
-                    blocking=False
-                ):
-                    self._queue.put((is_stdout, line))
-                else:
-                    self._reader_error = OutputQueueFullError(
-                        'ProcessStream output queue is full'
-                    )
-                    self._queue_full.set()
+                if line:
+                    self._put_event(is_stdout, line)
         finally:
             self._queue.put((is_stdout, None))
+
+    def _put_event(self, is_stdout: bool, line: str | bytes) -> None:
+        if self._queue_full.is_set():
+            return
+        if self._event_slots is None or self._event_slots.acquire(blocking=False):
+            self._queue.put((is_stdout, line))
+        else:
+            self._reader_error = OutputQueueFullError(
+                'ProcessStream output queue is full'
+            )
+            self._queue_full.set()
 
 
 def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Any) -> int:
@@ -446,6 +477,9 @@ def start(
     cmd: Cmd,
     *,
     by_lines: bool = True,
+    chunk_size: int | None = None,
+    encoding: str | None = 'utf8',
+    errors: str = 'strict',
     max_queue_size: int | None = None,
     overflow: Literal['raise'] | None = None,
     **kwargs: Any,
@@ -454,6 +488,9 @@ def start(
     return ProcessStream(
         cmd,
         by_lines=by_lines,
+        chunk_size=chunk_size,
+        encoding=encoding,
+        errors=errors,
         max_queue_size=max_queue_size,
         overflow=overflow,
         **kwargs,

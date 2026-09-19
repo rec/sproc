@@ -72,5 +72,20 @@ EOF after the direct child exits. Keep descendant output separate, for example
 by redirecting it to `subprocess.DEVNULL`; Sproc does not guess which process
 tree to terminate.
 
+### Text, binary, and chunked output
+
+`ProcessStream` decodes UTF-8 strictly by default. Set `encoding` and `errors`
+to choose a text codec and decoding policy. Set `encoding=None` for binary
+events: one stream yields either `str` values or `bytes` values, never both.
+
+    text = sproc.start(CMD, encoding='latin-1')
+    binary = sproc.start(CMD, encoding=None)
+
+Line mode is the default. For incremental output chunks, set `by_lines=False`
+and provide a positive `chunk_size`; each chunk has at most that many bytes
+before text decoding. The old helpers retain their EOF-sized chunk behavior.
+
+    chunks = sproc.start(CMD, by_lines=False, chunk_size=4096)
+
 
 ### [API Documentation](https://rec.github.io/sproc#sproc--api-documentation)
