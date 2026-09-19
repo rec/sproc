@@ -60,6 +60,10 @@ Callback = Optional[Callable[..., Any]]
 Cmd = Union[str, Sequence[str]]
 
 
+def _normalize_newlines(text: str) -> str:
+    return text.replace('\r\n', '\n').replace('\r', '\n')
+
+
 class Sub:
     """
     Sub is a class to Iterate over lines or chunks of text from a subprocess.
@@ -241,7 +245,7 @@ class Sub:
                         if line:
                             if not isinstance(line, str):
                                 line = line.decode('utf8')
-                            line = line.replace('\r\n', '\n').replace('\r', '\n')
+                            line = _normalize_newlines(line)
                     except (OSError, UnicodeDecodeError) as error:
                         if self._reader_error is None:
                             self._reader_error = error
@@ -445,7 +449,7 @@ class ProcessStream:
                         if decoder is not None and (
                             text := decoder.decode(b'', final=True)
                         ):
-                            self._put_event(is_stdout, text)
+                            self._put_event(is_stdout, _normalize_newlines(text))
                         return
                     if decoder is not None:
                         line = decoder.decode(line)
@@ -454,6 +458,8 @@ class ProcessStream:
                         self._reader_error = error
                     return
                 if line:
+                    if isinstance(line, str):
+                        line = _normalize_newlines(line)
                     self._put_event(is_stdout, line)
         finally:
             self._queue.put(None)

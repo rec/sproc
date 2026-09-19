@@ -13,15 +13,10 @@ STDERR = ['err-one\n', 'err-two\n']
 CHILD = f"""\
 import sys
 
-sys.stdout.reconfigure(encoding='utf-8')
-sys.stderr.reconfigure(encoding='utf-8')
-sys.stdout.write({STDOUT[0]!r})
-sys.stdout.write({STDOUT[1]!r})
-sys.stdout.write({STDOUT[2]!r})
-sys.stdout.flush()
-sys.stderr.write({STDERR[0]!r})
-sys.stderr.write({STDERR[1]!r})
-sys.stderr.flush()
+sys.stdout.buffer.write({''.join(STDOUT).encode()!r})
+sys.stdout.buffer.flush()
+sys.stderr.buffer.write({''.join(STDERR).encode()!r})
+sys.stderr.buffer.flush()
 raise SystemExit({EXIT_CODE})
 """
 CRLF_CHILD = """\
@@ -163,6 +158,12 @@ class SprocTest(unittest.TestCase):
         self.assertEqual(out, ['one\n', 'two\n'])
         self.assertEqual(err, [])
         self.assertEqual(returncode, 0)
+
+    def test_process_stream_normalizes_windows_newlines(self) -> None:
+        stream = sproc.start(command(CRLF_CHILD, shell=False))
+
+        self.assertEqual(list(stream), [(True, 'one\n'), (True, 'two\n')])
+        self.assertEqual(stream.close(), 0)
 
     def test_log_preserves_stream_prefixes(self) -> None:
         lines: list[str] = []
