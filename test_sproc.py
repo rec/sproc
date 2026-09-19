@@ -173,3 +173,34 @@ class SprocTest(unittest.TestCase):
         self.assertEqual(list(iterator), [])
         self.assertFalse(sub.is_running)
         self.assertEqual(sub.returncode, 0)
+
+    def test_start_returns_events_while_process_is_running(self) -> None:
+        stream = sproc.start(command(RUNNING_CHILD, shell=False))
+
+        self.assertTrue(stream.is_running)
+        self.assertIsNone(stream.returncode)
+        self.assertEqual(stream.wait(0.01), None)
+
+        events = iter(stream)
+        self.assertEqual(next(events), (True, 'ready\n'))
+        self.assertTrue(stream.is_running)
+        self.assertEqual(list(events), [])
+        self.assertEqual(stream.wait(), 0)
+        self.assertTrue(stream.join())
+        self.assertEqual(stream.close(), 0)
+
+    def test_start_keeps_concurrent_processes_separate(self) -> None:
+        first = sproc.start(command("print('first')", shell=False))
+        second = sproc.start(command("print('second')", shell=False))
+
+        self.assertEqual(list(first), [(True, 'first\n')])
+        self.assertEqual(list(second), [(True, 'second\n')])
+        self.assertEqual(first.close(), 0)
+        self.assertEqual(second.close(), 0)
+
+    def test_start_records_reader_decoding_error(self) -> None:
+        stream = sproc.start(command(INVALID_UTF8_CHILD, shell=False))
+
+        self.assertEqual(list(stream), [])
+        self.assertIsInstance(stream.reader_error, UnicodeDecodeError)
+        self.assertEqual(stream.close(), 0)

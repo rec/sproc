@@ -40,7 +40,7 @@ from queue import Queue
 from threading import Thread
 from typing import Any, Optional, Union, cast
 
-__all__ = 'Sub', 'call', 'call_in_thread', 'run', 'log'
+__all__ = 'ProcessStream', 'Sub', 'call', 'call_in_thread', 'log', 'run', 'start'
 
 DEFAULTS = {'stderr': subprocess.PIPE, 'stdout': subprocess.PIPE}
 
@@ -253,6 +253,110 @@ class Sub:
             return lambda ok, line: None
 
 
+class ProcessStream:
+    """One immediately-started subprocess and its output event stream.
+
+    Iterate once to receive `(is_stdout, text)` events. `wait()` returns the
+    process return code, or `None` when its timeout expires without terminating
+    the process. `close()` waits for the process and its reader threads.
+    """
+
+    def __init__(self, cmd: Cmd, *, by_lines: bool = True, **kwargs: Any) -> None:
+        if 'stdout' in kwargs or 'stderr' in kwargs:
+            raise ValueError('Cannot set stdout or stderr')
+
+        shell = kwargs.get('shell', False)
+        if isinstance(cmd, str):
+            command: Cmd = cmd if shell else shlex.split(cmd)
+        else:
+            command = shlex.join(cmd) if shell else cmd
+
+        self._queue: Queue[tuple[bool, str | None]] = Queue()
+        self._by_lines = by_lines
+        self._reader_error: UnicodeDecodeError | OSError | None = None
+        self._iterated = False
+        self._process: subprocess.Popen[Any] = subprocess.Popen(
+            command, **cast(Any, dict(kwargs, **DEFAULTS))
+        )
+        self._threads = [
+            Thread(target=self._read_stream, args=(ok,), daemon=True)
+            for ok in (False, True)
+        ]
+        for thread in self._threads:
+            thread.start()
+
+    @property
+    def is_running(self) -> bool:
+        """Whether the subprocess has not exited."""
+        return self._process.poll() is None
+
+    @property
+    def reader_error(self) -> UnicodeDecodeError | OSError | None:
+        """The first decoding or I/O error raised by a stream reader."""
+        return self._reader_error
+
+    @property
+    def returncode(self) -> int | None:
+        """The subprocess return code, or `None` while it is still running."""
+        return self._process.poll()
+
+    def __iter__(self) -> Iterator[tuple[bool, str]]:
+        """Yield output events once, until both output streams close."""
+        if self._iterated:
+            raise RuntimeError('ProcessStream output can be iterated only once')
+        self._iterated = True
+
+        finished = 0
+        while finished < 2:
+            is_stdout, line = self._queue.get()
+            if line is None:
+                finished += 1
+            else:
+                yield is_stdout, line
+
+    def wait(self, timeout: float | None = None) -> int | None:
+        """Wait for the subprocess, returning `None` when `timeout` expires."""
+        try:
+            return self._process.wait(timeout)
+        except subprocess.TimeoutExpired:
+            return None
+
+    def join(self, timeout: float | None = None) -> bool:
+        """Join reader threads and report whether both have stopped."""
+        for thread in self._threads:
+            thread.join(timeout)
+        return all(not thread.is_alive() for thread in self._threads)
+
+    def close(self) -> int:
+        """Wait for normal completion, join readers, and close output streams."""
+        returncode = self.wait()
+        assert returncode is not None
+        self.join()
+        for stream in self._process.stdout, self._process.stderr:
+            if stream is not None:
+                stream.close()
+        return returncode
+
+    def _read_stream(self, is_stdout: bool) -> None:
+        stream = self._process.stdout if is_stdout else self._process.stderr
+        assert stream is not None
+        try:
+            while True:
+                try:
+                    line = stream.readline() if self._by_lines else stream.read()
+                    if line and not isinstance(line, str):
+                        line = line.decode('utf8')
+                except (OSError, UnicodeDecodeError) as error:
+                    if self._reader_error is None:
+                        self._reader_error = error
+                    return
+                if not line:
+                    return
+                self._queue.put((is_stdout, line))
+        finally:
+            self._queue.put((is_stdout, None))
+
+
 def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Any) -> int:
     """
     Args:
@@ -267,6 +371,11 @@ def call(cmd: Cmd, out: Callback = None, err: Callback = None, **kwargs: Any) ->
       kwargs: The arguments to subprocess.Popen.
     """
     return Sub(cmd, **kwargs).call(out, err)
+
+
+def start(cmd: Cmd, *, by_lines: bool = True, **kwargs: Any) -> ProcessStream:
+    """Start a subprocess immediately and return its output event stream."""
+    return ProcessStream(cmd, by_lines=by_lines, **kwargs)
 
 
 def call_in_thread(

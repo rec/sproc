@@ -42,5 +42,17 @@ callback exceptions retain their existing thread behavior.
 subprocess before returning, despite their names. A separate nonblocking API is
 planned. Output ordering between `stdout` and `stderr` is unspecified.
 
+### Nonblocking output stream
+
+`start()` is the opt-in nonblocking API. It starts the process immediately and
+yields `(is_stdout, text)` events while it runs. `wait(timeout)` returns `None`
+when the timeout expires without terminating the process. Consume the events
+before `close()`, which waits for normal completion and reader shutdown.
+
+    stream = sproc.start(CMD)
+    for is_stdout, line in stream:
+        print('out' if is_stdout else 'err', line, end='')
+    returncode = stream.close()
+
 
 ### [API Documentation](https://rec.github.io/sproc#sproc--api-documentation)
