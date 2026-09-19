@@ -10,18 +10,16 @@ import sproc
 EXIT_CODE = 7
 STDOUT = ['out-one\n', 'out-two\n', 'cafe\n']
 STDERR = ['err-one\n', 'err-two\n']
-CHILD = f"""\
-import sys
-
-sys.stdout.write({STDOUT[0]!r})
-sys.stdout.write({STDOUT[1]!r})
-sys.stdout.write({STDOUT[2]!r})
-sys.stdout.flush()
-sys.stderr.write({STDERR[0]!r})
-sys.stderr.write({STDERR[1]!r})
-sys.stderr.flush()
-raise SystemExit({EXIT_CODE})
-"""
+CHILD = ';'.join(
+    [
+        'import sys',
+        *(f'sys.stdout.write({s!r})' for s in STDOUT),
+        'sys.stdout.flush()',
+        *(f'sys.stderr.write({s!r})' for s in STDERR),
+        'sys.stderr.flush()',
+        f'raise SystemExit({EXIT_CODE})',
+    ]
+)
 CRLF_CHILD = """\
 import sys
 
